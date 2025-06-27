@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>boba.vim</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Welcome to boba.vim</h1>
+      <button id="playButton" class="play-btn">🧋 Play</button>
+      <button id="tutorialplayButton" class="play-btn">
+        🧋 Play with tutorial
+      </button>
+      <button id="playOnline" class="play-btn">🧋 Play online</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>
