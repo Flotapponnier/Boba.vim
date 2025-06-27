@@ -15,7 +15,7 @@ def index():
 
 @app.route("/api/play")
 def play():
-    return jsonify({"message": "Welcome to boba.vim!", "status": "ready"})
+    return render_template("game.html")
 
 
 @app.route("/api/playtutorial")

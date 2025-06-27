@@ -31,7 +31,7 @@ h1 {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.play-btn {
+.btn {
   background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
   border: none;
   color: white;
@@ -47,18 +47,18 @@ h1 {
   letter-spacing: 1px;
 }
 
-.play-btn:hover {
+.btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
   background: linear-gradient(45deg, #ff5252, #26a69a);
 }
 
-.play-btn:active {
+.btn:active {
   transform: translateY(-1px);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
-.play-btn:disabled {
+.btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
@@ -74,7 +74,7 @@ h1 {
     padding: 2rem 1.5rem;
   }
 
-  .play-btn {
+  .btn {
     font-size: 1rem;
     padding: 0.8rem 1.5rem;
   }

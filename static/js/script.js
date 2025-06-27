@@ -1,3 +1,4 @@
+//Playbutton
 document.addEventListener("DOMContentLoaded", function () {
   const playButton = document.getElementById("playButton");
 
@@ -6,11 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     playButton.textContent = "🚀 Starting...";
 
     try {
-      const response = await fetch("/api/play");
-      const data = await response.json();
-
-      console.log("Game response:", data);
-      alert(data.message);
+      window.location.href = "/api/play";
     } catch (error) {
       console.error("Error starting game:", error);
       alert("Failed to start game. Please try again.");
@@ -21,6 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+//TutorialButton
 document.addEventListener("DOMContentLoaded", function () {
   const playTutorialButton = document.getElementById("tutorialplayButton");
 
@@ -43,6 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+//Online button
 document.addEventListener("DOMContentLoaded", function () {
   const playOnline = document.getElementById("playOnline");
   playOnline.addEventListener("click", async function () {
@@ -59,6 +58,23 @@ document.addEventListener("DOMContentLoaded", function () {
     } finally {
       playOnline.disabled = False;
       playOnline.textContent = "🧋 Play online";
+    }
+  });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  const menuButton = document.getElementById("backMenu");
+
+  menuButton.addEventListener("click", function () {
+    menuButton.disabled = true;
+    menuButton.textContent = "Going back to menu ...";
+    try {
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error going back to menu:", error);
+      alert("Error going back to menu");
+      menuButton.disabled = false;
+      menuButton.textContent = "Menu";
     }
   });
 });
