@@ -72,6 +72,7 @@ def play():
     session["game_map"] = game_map
     session["player_pos"] = {"row": 0, "col": 0}
     session["score"] = 0
+    session["preferred_column"] = None
 
     return render_template("game.html", text_grid=text_grid, game_map=game_map)
 
@@ -84,18 +85,39 @@ def move_player():
     game_map = session.get("game_map", [])
     player_pos = session.get("player_pos", {"row": 0, "col": 0})
     score = session.get("score", 0)
+    preferred_column = session.get("preferred_column", None)
 
     current_row = player_pos["row"]
     current_col = player_pos["col"]
 
     if direction == "h":
-        new_row, new_col = current_row, current_col - 1
-    elif direction == "j":
-        new_row, new_col = current_row + 1, current_col
-    elif direction == "k":
-        new_row, new_col = current_row - 1, current_col
+        new_row = current_row
+        new_col = current_col - 1
+        preferred_column = new_col
     elif direction == "l":
-        new_row, new_col = current_row, current_col + 1
+        new_row = current_row
+        new_col = current_col + 1
+        preferred_column = new_col
+    elif direction == "j":
+        new_row = current_row + 1
+        if preferred_column is None:
+            preferred_column = current_col
+
+        if new_row < len(game_map):
+            target_row_length = len(game_map[new_row])
+            new_col = min(preferred_column, target_row_length - 1)
+        else:
+            new_col = current_col
+    elif direction == "k":
+        new_row = current_row - 1
+        if preferred_column is None:
+            preferred_column = current_col
+
+        if new_row >= 0:
+            target_row_length = len(game_map[new_row])
+            new_col = min(preferred_column, target_row_length - 1)
+        else:
+            new_col = current_col
     else:
         return jsonify({"success": False, "error": "Invalid direction"})
 
@@ -111,7 +133,6 @@ def move_player():
     if target_value == 3:
         pearl_collected = True
         score += 100
-
         place_new_pearl(game_map, new_row, new_col)
 
     game_map[current_row][current_col] = 0
@@ -122,6 +143,7 @@ def move_player():
     session["game_map"] = game_map
     session["player_pos"] = new_player_pos
     session["score"] = score
+    session["preferred_column"] = preferred_column
 
     return jsonify(
         {
