@@ -1,57 +1,63 @@
 export function initializeMapToggle() {
   document.addEventListener("keydown", function (event) {
-    if (event.key === "-") {
-      toggleMap();
+    if (event.key === window.MAP_CONFIG.TOGGLE_KEY) {
+      handleMapToggle();
       event.preventDefault();
-
-      if (!window.gameState.tutorialMode) {
-        const headerInfo = document.querySelector(".header-info");
-        if (headerInfo) {
-          if (!headerInfo.dataset.originalContent) {
-            headerInfo.dataset.originalContent = headerInfo.innerHTML;
-          }
-
-          const mapDisplay = document.getElementById("mapDisplay");
-          const isVisible =
-            mapDisplay &&
-            mapDisplay.style.display !== "none" &&
-            mapDisplay.style.display !== "";
-          const message = isVisible ? "Map HIDDEN" : "Map SHOWN";
-
-          headerInfo.innerHTML = `<strong style="color: #4ecdc4;">You pressed - to toggle map | ${message}</strong>`;
-          window.chatModule.addToChatHistory(
-            `You pressed - to toggle map | ${message}`,
-          );
-
-          setTimeout(() => {
-            window.feedbackModule.resetHeaderInfo();
-          }, 2000);
-        }
-      } else {
-        const mapDisplay = document.getElementById("mapDisplay");
-        const isVisible =
-          mapDisplay &&
-          mapDisplay.style.display !== "none" &&
-          mapDisplay.style.display !== "";
-        const message = isVisible ? "Map HIDDEN" : "Map SHOWN";
-        window.chatModule.addToChatHistory(
-          `You pressed - to toggle map | ${message}`,
-        );
-      }
     }
   });
 }
 
-export function toggleMap() {
-  const mapDisplay = document.getElementById("mapDisplay");
-  if (mapDisplay) {
-    if (
-      mapDisplay.style.display === "none" ||
-      mapDisplay.style.display === ""
-    ) {
-      mapDisplay.style.display = "block";
-    } else {
-      mapDisplay.style.display = "none";
-    }
+function handleMapToggle() {
+  const wasVisible = isMapVisible();
+  toggleMap();
+  const isNowVisible = isMapVisible();
+
+  const statusMessage = isNowVisible
+    ? window.MAP_CONFIG.MESSAGES.SHOWN
+    : window.MAP_CONFIG.MESSAGES.HIDDEN;
+  const fullMessage = `${window.MAP_CONFIG.MESSAGES.TOGGLE} | ${statusMessage}`;
+
+  window.chatModule.addToChatHistory(fullMessage);
+
+  if (!window.gameState.tutorialMode) {
+    showMapToggleFeedback(fullMessage);
   }
+}
+
+function isMapVisible() {
+  const mapDisplay = document.getElementById(
+    window.MAP_CONFIG.DISPLAY_ELEMENT_ID,
+  );
+  return (
+    mapDisplay &&
+    mapDisplay.style.display !== "none" &&
+    mapDisplay.style.display !== ""
+  );
+}
+
+function showMapToggleFeedback(message) {
+  const headerInfo = document.querySelector(window.UI_SELECTORS.HEADER_INFO);
+  if (!headerInfo) return;
+
+  if (!headerInfo.dataset.originalContent) {
+    headerInfo.dataset.originalContent = headerInfo.innerHTML;
+  }
+
+  headerInfo.innerHTML = `<strong style="color: ${window.MAP_CONFIG.FEEDBACK_COLOR};">${message}</strong>`;
+
+  setTimeout(() => {
+    window.feedbackModule.resetHeaderInfo();
+  }, window.MAP_CONFIG.FEEDBACK_TIMEOUT);
+}
+
+export function toggleMap() {
+  const mapDisplay = document.getElementById(
+    window.MAP_CONFIG.DISPLAY_ELEMENT_ID,
+  );
+  if (!mapDisplay) return;
+
+  const isCurrentlyVisible =
+    mapDisplay.style.display !== "none" && mapDisplay.style.display !== "";
+
+  mapDisplay.style.display = isCurrentlyVisible ? "none" : "block";
 }

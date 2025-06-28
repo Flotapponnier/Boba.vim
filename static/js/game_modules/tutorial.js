@@ -1,15 +1,8 @@
-const tutorialCommands = [
-  { key: "h", message: "Press H to go LEFT ←" },
-  { key: "j", message: "Press J to go DOWN ↓" },
-  { key: "k", message: "Press K to go UP ↑" },
-  { key: "l", message: "Press L to go RIGHT →" },
-];
-
 let currentTutorialCommand = null;
 
 export function initializeTutorialMode() {
   document.addEventListener("keydown", function (event) {
-    if (event.key === "+") {
+    if (event.key === window.TUTORIAL_CONFIG.TOGGLE_KEY) {
       toggleTutorialMode();
       event.preventDefault();
     }
@@ -18,59 +11,104 @@ export function initializeTutorialMode() {
 
 export function toggleTutorialMode() {
   window.gameState.tutorialMode = !window.gameState.tutorialMode;
-  const headerInfo = document.querySelector(".header-info");
 
   if (window.gameState.tutorialMode) {
-    headerInfo.innerHTML = `<strong style="color: #9b59b6;">TUTORIAL MODE ACTIVATED</strong>`;
-    window.chatModule.addToChatHistory("Tutorial mode activated");
-    setTimeout(() => {
-      generateRandomTutorialCommand();
-    }, 1000);
+    activateTutorialMode();
   } else {
-    currentTutorialCommand = null;
-    window.chatModule.addToChatHistory("Tutorial mode deactivated");
-    if (!headerInfo.dataset.originalContent) {
-      headerInfo.innerHTML =
-        "Welcome! Use HJKL to move | Press - to show map | Press + to activate tutorial";
-    } else {
-      headerInfo.innerHTML = headerInfo.dataset.originalContent;
-    }
+    deactivateTutorialMode();
+  }
+}
+
+function activateTutorialMode() {
+  showTutorialMessage(
+    window.TUTORIAL_CONFIG.MESSAGES.ACTIVATED,
+    window.TUTORIAL_CONFIG.COLORS.ACTIVATED,
+  );
+  window.chatModule.addToChatHistory("Tutorial mode activated");
+
+  setTimeout(() => {
+    generateRandomTutorialCommand();
+  }, window.TUTORIAL_CONFIG.TIMINGS.ACTIVATION_DELAY);
+}
+
+function deactivateTutorialMode() {
+  currentTutorialCommand = null;
+  window.chatModule.addToChatHistory(
+    window.TUTORIAL_CONFIG.MESSAGES.DEACTIVATED,
+  );
+  resetToWelcomeMessage();
+}
+
+function resetToWelcomeMessage() {
+  const headerInfo = document.querySelector(window.UI_SELECTORS.HEADER_INFO);
+  if (!headerInfo) return;
+
+  if (!headerInfo.dataset.originalContent) {
+    headerInfo.innerHTML = window.TUTORIAL_CONFIG.MESSAGES.DEFAULT_WELCOME;
+  } else {
+    headerInfo.innerHTML = headerInfo.dataset.originalContent;
   }
 }
 
 export function generateRandomTutorialCommand() {
   if (!window.gameState.tutorialMode) return;
 
-  const randomIndex = Math.floor(Math.random() * tutorialCommands.length);
-  currentTutorialCommand = tutorialCommands[randomIndex];
+  const randomIndex = Math.floor(
+    Math.random() * window.TUTORIAL_COMMANDS.length,
+  );
+  currentTutorialCommand = window.TUTORIAL_COMMANDS[randomIndex];
 
-  const headerInfo = document.querySelector(".header-info");
-  headerInfo.innerHTML = `<strong style="color: #3498db;">${currentTutorialCommand.message}</strong>`;
+  showTutorialMessage(
+    currentTutorialCommand.message,
+    window.TUTORIAL_CONFIG.COLORS.INSTRUCTION,
+  );
 }
 
 export function handleTutorialMovement(key) {
-  const headerInfo = document.querySelector(".header-info");
+  if (!currentTutorialCommand) return;
 
-  if (currentTutorialCommand && key === currentTutorialCommand.key) {
-    headerInfo.innerHTML = `<strong style="color: #27ae60;">✓ CORRECT! ${currentTutorialCommand.message}</strong>`;
-    window.chatModule.addToChatHistory(
-      `✓ Correct: ${currentTutorialCommand.message}`,
-    );
-
-    setTimeout(() => {
-      generateRandomTutorialCommand();
-    }, 1000);
-  } else if (currentTutorialCommand) {
-    const correctCommand = tutorialCommands.find((cmd) => cmd.key === key);
-    if (correctCommand) {
-      headerInfo.innerHTML = `<strong style="color: #e74c3c;">✗ Wrong! Expected: ${currentTutorialCommand.message}</strong>`;
-      window.chatModule.addToChatHistory(
-        `✗ Wrong: Expected ${currentTutorialCommand.message}, pressed ${correctCommand.message.split(" ")[1]} instead`,
-      );
-
-      setTimeout(() => {
-        headerInfo.innerHTML = `<strong style="color: #3498db;">${currentTutorialCommand.message}</strong>`;
-      }, 1500);
-    }
+  if (key === currentTutorialCommand.key) {
+    handleCorrectAnswer();
+  } else {
+    handleWrongAnswer(key);
   }
+}
+
+function handleCorrectAnswer() {
+  const correctMessage = `✓ CORRECT! ${currentTutorialCommand.message}`;
+  showTutorialMessage(correctMessage, window.TUTORIAL_CONFIG.COLORS.CORRECT);
+  window.chatModule.addToChatHistory(
+    `✓ Correct: ${currentTutorialCommand.message}`,
+  );
+
+  setTimeout(() => {
+    generateRandomTutorialCommand();
+  }, window.TUTORIAL_CONFIG.TIMINGS.NEXT_COMMAND_DELAY);
+}
+
+function handleWrongAnswer(pressedKey) {
+  const pressedCommand = window.TUTORIAL_COMMANDS.find(
+    (cmd) => cmd.key === pressedKey,
+  );
+  if (!pressedCommand) return;
+
+  const wrongMessage = `✗ Wrong! Expected: ${currentTutorialCommand.message}`;
+  showTutorialMessage(wrongMessage, window.TUTORIAL_CONFIG.COLORS.WRONG);
+
+  const chatMessage = `✗ Wrong: Expected ${currentTutorialCommand.message}, pressed ${pressedCommand.message.split(" ")[1]} instead`;
+  window.chatModule.addToChatHistory(chatMessage);
+
+  setTimeout(() => {
+    showTutorialMessage(
+      currentTutorialCommand.message,
+      window.TUTORIAL_CONFIG.COLORS.INSTRUCTION,
+    );
+  }, window.TUTORIAL_CONFIG.TIMINGS.WRONG_ANSWER_DISPLAY);
+}
+
+function showTutorialMessage(message, color) {
+  const headerInfo = document.querySelector(window.UI_SELECTORS.HEADER_INFO);
+  if (!headerInfo) return;
+
+  headerInfo.innerHTML = `<strong style="color: ${color};">${message}</strong>`;
 }

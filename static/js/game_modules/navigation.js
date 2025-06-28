@@ -1,6 +1,9 @@
 export function initializeBackToMenuButton() {
-  const menuButton = document.getElementById("backMenu");
+  const menuButton = document.getElementById(
+    window.UI_SELECTORS.BACK_MENU_BUTTON.replace("#", ""),
+  );
   if (!menuButton) return;
+
   menuButton.addEventListener("click", function () {
     menuButton.disabled = true;
     menuButton.textContent = "Going back to menu ...";

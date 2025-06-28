@@ -5,7 +5,7 @@ export function initializeMovement() {
   document.addEventListener("keydown", function (event) {
     const key = event.key.toLowerCase();
 
-    if (["h", "j", "k", "l"].includes(key)) {
+    if (window.VALID_MOVEMENT_KEYS.includes(key)) {
       if (event.repeat || (lastKeyPressed === key && !keyReleased)) {
         event.preventDefault();
         return;
@@ -28,7 +28,7 @@ export function initializeMovement() {
   document.addEventListener("keyup", function (event) {
     const key = event.key.toLowerCase();
 
-    if (["h", "j", "k", "l"].includes(key)) {
+    if (window.VALID_MOVEMENT_KEYS.includes(key)) {
       if (lastKeyPressed === key) {
         keyReleased = true;
       }
@@ -38,89 +38,84 @@ export function initializeMovement() {
 
 export async function movePlayer(direction) {
   try {
-    const response = await fetch("/api/move", {
+    const response = await fetch(window.API_ENDPOINTS.MOVE, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        direction: direction,
+        direction: window.MOVEMENT_KEYS[direction].direction,
       }),
     });
 
     const result = await response.json();
 
     if (result.success) {
-      window.displayModule.updateGameDisplay(result.game_map);
-      window.displayModule.updateScore(result.score);
-
-      if (result.pearl_collected && !window.gameState.tutorialMode) {
-        console.log("Pearl collected! +100 points");
-
-        const headerInfo = document.querySelector(".header-info");
-        if (headerInfo) {
-          if (!headerInfo.dataset.originalContent) {
-            headerInfo.dataset.originalContent = headerInfo.innerHTML;
-          }
-
-          headerInfo.innerHTML = `<strong style="color: #ffd700; animation: pulse 0.5s ease-in-out;">🧋 PEARL COLLECTED! +100 points!</strong>`;
-          window.chatModule.addToChatHistory(
-            "🧋 PEARL COLLECTED! +100 points!",
-          );
-
-          setTimeout(() => {
-            const movementMessages = {
-              h: "You pressed H to go LEFT ←",
-              j: "You pressed J to go DOWN ↓",
-              k: "You pressed K to go UP ↑",
-              l: "You pressed L to go RIGHT →",
-            };
-            const message =
-              movementMessages[direction] ||
-              `You pressed ${direction.toUpperCase()}`;
-            headerInfo.innerHTML = `<strong style="color: #ff6b6b;">${message}</strong>`;
-          }, 1500);
-        }
-      } else if (result.pearl_collected && window.gameState.tutorialMode) {
-        window.chatModule.addToChatHistory("🧋 PEARL COLLECTED! +100 points!");
-      }
+      handleSuccessfulMove(result, direction);
     } else {
-      console.log("Move blocked:", result.error);
-
-      if (!window.gameState.tutorialMode) {
-        const headerInfo = document.querySelector(".header-info");
-        if (headerInfo) {
-          if (!headerInfo.dataset.originalContent) {
-            headerInfo.dataset.originalContent = headerInfo.innerHTML;
-          }
-
-          const movementMessages = {
-            h: "You pressed H to go LEFT ← - BLOCKED!",
-            j: "You pressed J to go DOWN ↓ - BLOCKED!",
-            k: "You pressed K to go UP ↑ - BLOCKED!",
-            l: "You pressed L to go RIGHT → - BLOCKED!",
-          };
-
-          const message =
-            movementMessages[direction] ||
-            `You pressed ${direction.toUpperCase()} - BLOCKED!`;
-          headerInfo.innerHTML = `<strong style="color: #e74c3c;">${message}</strong>`;
-          window.chatModule.addToChatHistory(message);
-        }
-      } else {
-        const movementMessages = {
-          h: "You pressed H to go LEFT ← - BLOCKED!",
-          j: "You pressed J to go DOWN ↓ - BLOCKED!",
-          k: "You pressed K to go UP ↑ - BLOCKED!",
-          l: "You pressed L to go RIGHT → - BLOCKED!",
-        };
-        const message =
-          movementMessages[direction] ||
-          `You pressed ${direction.toUpperCase()} - BLOCKED!`;
-        window.chatModule.addToChatHistory(message);
-      }
+      handleBlockedMove(result, direction);
     }
   } catch (error) {
     console.error("Error moving player:", error);
   }
+}
+
+function handleSuccessfulMove(result, direction) {
+  window.displayModule.updateGameDisplay(result.game_map);
+  window.displayModule.updateScore(result.score);
+
+  if (result.pearl_collected) {
+    handlePearlCollection(direction);
+  }
+}
+
+function handlePearlCollection(direction) {
+  console.log("Pearl collected! +100 points");
+  window.chatModule.addToChatHistory("🧋 PEARL COLLECTED! +100 points!");
+
+  if (!window.gameState.tutorialMode) {
+    showPearlCollectionFeedback(direction);
+  }
+}
+
+function showPearlCollectionFeedback(direction) {
+  const headerInfo = document.querySelector(window.UI_SELECTORS.HEADER_INFO);
+  if (!headerInfo) return;
+
+  if (!headerInfo.dataset.originalContent) {
+    headerInfo.dataset.originalContent = headerInfo.innerHTML;
+  }
+
+  headerInfo.innerHTML = `<strong style="color: #ffd700; animation: pulse 0.5s ease-in-out;">🧋 PEARL COLLECTED! +100 points!</strong>`;
+
+  setTimeout(() => {
+    const message =
+      window.MOVEMENT_MESSAGES[direction] ||
+      `You pressed ${direction.toUpperCase()}`;
+    headerInfo.innerHTML = `<strong style="color: ${window.FEEDBACK_CONFIG.MOVEMENT_COLOR};">${message}</strong>`;
+  }, 1500);
+}
+
+function handleBlockedMove(result, direction) {
+  console.log("Move blocked:", result.error);
+
+  const message =
+    window.BLOCKED_MESSAGES[direction] ||
+    `You pressed ${direction.toUpperCase()} - BLOCKED!`;
+  window.chatModule.addToChatHistory(message);
+
+  if (!window.gameState.tutorialMode) {
+    showBlockedMoveFeedback(message);
+  }
+}
+
+function showBlockedMoveFeedback(message) {
+  const headerInfo = document.querySelector(window.UI_SELECTORS.HEADER_INFO);
+  if (!headerInfo) return;
+
+  if (!headerInfo.dataset.originalContent) {
+    headerInfo.dataset.originalContent = headerInfo.innerHTML;
+  }
+
+  headerInfo.innerHTML = `<strong style="color: #e74c3c;">${message}</strong>`;
 }

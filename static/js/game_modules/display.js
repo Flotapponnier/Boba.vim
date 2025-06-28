@@ -1,5 +1,5 @@
 export function updateGameDisplay(gameMap) {
-  const keys = document.querySelectorAll(".key");
+  const keys = document.querySelectorAll(window.UI_SELECTORS.GAME_KEYS);
 
   keys.forEach((key) => {
     const row = parseInt(key.getAttribute("data-row"));
@@ -41,7 +41,9 @@ export function updateGameDisplay(gameMap) {
 }
 
 export function updateDebugDisplay(gameMap) {
-  const mapGrid = document.getElementById("mapGrid");
+  const mapGrid = document.getElementById(
+    window.UI_SELECTORS.MAP_GRID.replace("#", ""),
+  );
   if (mapGrid) {
     let html = "";
     for (let row = 0; row < gameMap.length; row++) {
@@ -57,7 +59,9 @@ export function updateDebugDisplay(gameMap) {
 }
 
 export function updateScore(score) {
-  const scoreElement = document.getElementById("score");
+  const scoreElement = document.getElementById(
+    window.UI_SELECTORS.SCORE_ELEMENT.replace("#", ""),
+  );
   if (scoreElement) {
     scoreElement.textContent = score;
 
@@ -67,6 +71,6 @@ export function updateScore(score) {
     setTimeout(() => {
       scoreElement.style.color = "#333";
       scoreElement.style.transform = "scale(1)";
-    }, 300);
+    }, window.FEEDBACK_CONFIG.ANIMATION_DURATION);
   }
 }

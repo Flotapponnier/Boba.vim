@@ -3,7 +3,7 @@ let chatHistoryVisible = false;
 
 export function initializeChatHistory() {
   document.addEventListener("keydown", function (event) {
-    if (event.key === "\\") {
+    if (event.key === window.CHAT_CONFIG.TOGGLE_KEY) {
       toggleChatHistory();
       event.preventDefault();
     }
@@ -17,14 +17,14 @@ export function addToChatHistory(message) {
     message: message,
   });
 
-  if (chatHistory.length > 50) {
+  if (chatHistory.length > window.CHAT_CONFIG.MAX_HISTORY) {
     chatHistory.shift();
   }
 }
 
 export function toggleChatHistory() {
   chatHistoryVisible = !chatHistoryVisible;
-  let chatWindow = document.getElementById("chatHistoryWindow");
+  let chatWindow = document.getElementById(window.CHAT_CONFIG.WINDOW_ID);
 
   if (chatHistoryVisible) {
     if (!chatWindow) {
@@ -42,7 +42,7 @@ export function toggleChatHistory() {
 
 function createChatHistoryWindow() {
   const chatWindow = document.createElement("div");
-  chatWindow.id = "chatHistoryWindow";
+  chatWindow.id = window.CHAT_CONFIG.WINDOW_ID;
   chatWindow.className = "chat-history-window";
 
   chatWindow.innerHTML = `
@@ -54,7 +54,7 @@ function createChatHistoryWindow() {
       ${chatHistory.length === 0 ? '<p class="no-history">No commands yet. Start moving with HJKL!</p>' : ""}
     </div>
     <div class="chat-history-footer">
-      Press \\ to close | Total commands: <span id="commandCount">${chatHistory.length}</span>
+      Press ${window.CHAT_CONFIG.TOGGLE_KEY} to close | Total commands: <span id="commandCount">${chatHistory.length}</span>
     </div>
   `;
 
