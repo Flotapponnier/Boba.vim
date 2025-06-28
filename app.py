@@ -21,22 +21,45 @@ def play():
 @app.route("/api/playtutorial")
 def play_tutorial():
     return jsonify(
-        {"message": " Tutorial will be implement soon", "status": "not ready"}
+        {"message": "Tutorial will be implemented soon", "status": "not ready"}
     )
 
 
 @app.route("/api/playonline")
 def play_online():
     return jsonify(
-        {"message": " Online game will be implement soon", "status": "not ready"}
+        {"message": "Online game will be implemented soon", "status": "not ready"}
     )
 
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html"), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template("500.html"), 500
+
+
 if __name__ == "__main__":
-    # Enable live reloading for all files
     app.run(
         debug=True,
         host="127.0.0.1",
         port=5000,
-        extra_files=["templates/index.html", "static/style.css", "static/script.js"],
+        extra_files=[
+            # Templates
+            "templates/base.html",
+            "templates/index.html",
+            "templates/game.html",
+            "templates/404.html",
+            "templates/500.html",
+            # CSS files
+            "static/css/global.css",
+            "static/css/index.css",
+            "static/css/game.css",
+            # JavaScript files
+            "static/js/index.js",
+            "static/js/game.js",
+        ],
     )

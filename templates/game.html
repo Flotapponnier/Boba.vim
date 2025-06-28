@@ -1,20 +1,24 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>boba.vim</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
-    />
-  </head>
-  <body>
-    <div class="container">
-      <h1>Time to boba 🧋</h1>
-      <button id="backMenu" class="btn">Menu</button>
-    </div>
+{% extends "base.html" %} {% block title %}boba.vim - Game{% endblock %} {%
+block css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/game.css') }}"
+/>
+{% endblock %} {% block container_class %}game-container{% endblock %} {% block
+content %}
+<div class="game-header">
+  <h1 class="game-title">🧋 Time to boba</h1>
+  <div class="game-controls">
+    <button id="backMenu" class="btn">← Menu</button>
+  </div>
+</div>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-  </body>
-</html>
+<div class="game-status">
+  <div class="status-item">
+    <div class="status-label">Score</div>
+    <div class="status-value" id="score">0</div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', filename='js/game.js') }}"></script>
+{% endblock %}
