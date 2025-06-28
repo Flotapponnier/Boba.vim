@@ -1,5 +1,6 @@
 from flask import Flask, render_template, jsonify
 import os
+import random
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,36 +10,58 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "boba-secret-key")
 
 
 def create_text_lines():
-    """Convert text to lines with natural word breaks"""
-    text = """Welcome to 
-boba.vim !
-This game 
-is here to
-help you learn 
-the 
-vim motions 
-fundamental,
-it's a 
-long journey over 
-there !
-but with patience,
+    text = """Welcome to boba.vim !
+This game is here to help you learn the vim motions fundamental,
+it's a long journey over there ! but with patience,
 determination !
-I'm sure you 
-gonna make it ! 
+I'm sure you gonna make it ! 
 Best of luck,
 Florent."""
 
-    lines = text.strip().split("\n")
+    text = text.replace("\n", " ").strip()
+
+    lines = []
+    words = text.split()
+    current_line = ""
+
+    for word in words:
+        test_line = current_line + (" " if current_line else "") + word
+        if len(test_line) <= 20:
+            current_line = test_line
+        else:
+            if current_line:
+                lines.append(current_line)
+            current_line = word
+
+    if current_line:
+        lines.append(current_line)
 
     grid = []
     for line in lines:
-        if line.strip():
-            char_list = []
-            for char in line:
-                char_list.append(char)
-            grid.append(char_list)
+        grid.append(list(line))
 
     return grid
+
+
+def create_game_map(text_grid):
+    game_map = []
+
+    for row_idx, row in enumerate(text_grid):
+        map_row = []
+        for col_idx, char in enumerate(row):
+            if row_idx == 0 and col_idx == 0:
+                map_row.append(1)
+            else:
+                map_row.append(0)
+        game_map.append(map_row)
+
+    total_rows = len(text_grid)
+    if total_rows > 1:
+        pearl_row = random.randint(1, total_rows - 1)
+        pearl_col = random.randint(0, len(text_grid[pearl_row]) - 1)
+        game_map[pearl_row][pearl_col] = 3
+
+    return game_map
 
 
 @app.route("/")
@@ -48,14 +71,10 @@ def index():
 
 @app.route("/api/play")
 def play():
-    grid = create_text_lines()
+    text_grid = create_text_lines()
+    game_map = create_game_map(text_grid)
 
-    # Debug: print the grid structure
-    print("Grid structure:")
-    for i, row in enumerate(grid):
-        print(f"Row {i}: {len(row)} characters - {''.join(row)}")
-
-    return render_template("game.html", grid=grid)
+    return render_template("game.html", text_grid=text_grid, game_map=game_map)
 
 
 @app.route("/api/playtutorial")
@@ -88,17 +107,14 @@ if __name__ == "__main__":
         host="127.0.0.1",
         port=5000,
         extra_files=[
-            # Templates
             "templates/base.html",
             "templates/index.html",
             "templates/game.html",
             "templates/404.html",
             "templates/500.html",
-            # CSS files
             "static/css/global.css",
             "static/css/index.css",
             "static/css/game.css",
-            # JavaScript files
             "static/js/index.js",
             "static/js/game.js",
         ],

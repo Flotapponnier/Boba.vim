@@ -13,24 +13,38 @@ content %}
 
 <div class="game-board">
   <div class="keyboard-map">
-    {% for row in grid %} {% set row_index = loop.index0 %}
+    {% for row in text_grid %} {% set row_index = loop.index0 %}
     <div class="keyboard-row">
-      {% for letter in row %} {% set col_index = loop.index0 %}
+      {% for letter in row %} {% set col_index = loop.index0 %} {% set map_value
+      = game_map[row_index][col_index] %}
       <div
         class="key"
         data-letter="{{ letter }}"
         data-row="{{ row_index }}"
         data-col="{{ col_index }}"
+        data-map="{{ map_value }}"
       >
         <div class="key-top">
           <span class="key-letter">{{ letter }}</span>
-          {% if row_index == 0 and col_index == 0 %}
+
+          {% if map_value == 1 %}
+          <!-- Player (Boba character) -->
           <div class="boba-character">
             <div class="boba-shadow"></div>
             <img
               src="{{ url_for('static', filename='sprites/boba.png') }}"
               alt="Boba"
               class="boba-sprite"
+            />
+          </div>
+          {% elif map_value == 3 %}
+          <!-- Pearl -->
+          <div class="pearl">
+            <div class="pearl-shadow"></div>
+            <img
+              src="{{ url_for('static', filename='sprites/pearl.png') }}"
+              alt="Pearl"
+              class="pearl-sprite"
             />
           </div>
           {% endif %}
@@ -42,7 +56,21 @@ content %}
   </div>
 </div>
 
-<div class="game-info"></div>
+<div class="game-info">
+  <p>🎮 Use HJKL keys to move! Collect pearls 💎 to score points!</p>
+  <div class="debug-info">
+    <p>Map Legend: 0=Empty, 1=Player, 3=Pearl</p>
+    <div class="map-display">
+      {% for row in game_map %}
+      <div class="map-row">
+        {% for value in row %}
+        <span class="map-cell map-{{ value }}">{{ value }}</span>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
 {% endblock %} {% block scripts %}
 <script src="{{ url_for('static', filename='js/game.js') }}"></script>
 {% endblock %}

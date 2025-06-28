@@ -64,7 +64,7 @@
   flex-wrap: nowrap;
 }
 
-/* 3D Keyboard Keys - ALL SAME STYLE */
+/* 3D Keyboard Keys */
 .key {
   position: relative;
   width: 60px;
@@ -85,7 +85,7 @@
   transition: all 0.2s ease;
   overflow: visible;
 
-  /* 3D Effect - SAME FOR ALL KEYS */
+  /* 3D Effect */
   box-shadow:
     0 6px 0 #adb5bd,
     0 8px 12px rgba(0, 0, 0, 0.3),
@@ -148,6 +148,43 @@
   animation: bobaShadow 2s ease-in-out infinite;
 }
 
+/* Pearl styling */
+.pearl {
+  position: absolute;
+  top: 76%;
+  left: 95%;
+  transform: translate(-50%, -50%);
+  z-index: 8;
+  pointer-events: none;
+}
+
+.pearl-sprite {
+  width: 50px;
+  height: 50px;
+  display: block;
+  position: relative;
+  z-index: 2;
+
+  animation: pearlJump 2s ease-in-out infinite;
+
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+}
+
+.pearl-shadow {
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 3px;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: 1;
+
+  /* Shadow animation - same as boba */
+  animation: pearlShadowJump 2s ease-in-out infinite;
+}
+
 /* Jumping animation keyframes */
 @keyframes bobaJump {
   0%,
@@ -172,8 +209,32 @@
   }
 }
 
+/* Pearl jumping animation - same as boba */
+@keyframes pearlJump {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) translateY(0px);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-8px);
+  }
+}
+
+/* Pearl shadow animation */
+@keyframes pearlShadowJump {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateX(-50%) scale(0.8);
+    opacity: 0.2;
+  }
+}
+
 /* Make the key with boba character slightly more prominent */
-.key:has(.boba-character) .key-top {
+.key[data-map="1"] .key-top {
   background: linear-gradient(145deg, #fff3cd, #ffeaa7);
   border-color: #f39c12;
   box-shadow:
@@ -182,6 +243,18 @@
     inset 0 2px 0 rgba(255, 255, 255, 0.9),
     inset 0 -2px 0 rgba(0, 0, 0, 0.1),
     0 0 20px rgba(243, 156, 18, 0.3);
+}
+
+/* Make pearl keys slightly different */
+.key[data-map="3"] .key-top {
+  background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+  border-color: #2196f3;
+  box-shadow:
+    0 6px 0 #1976d2,
+    0 8px 12px rgba(0, 0, 0, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.1),
+    0 0 15px rgba(33, 150, 243, 0.2);
 }
 
 /* Hover effect - SAME FOR ALL KEYS */
@@ -195,7 +268,7 @@
 }
 
 /* Special hover for boba key */
-.key:has(.boba-character):hover .key-top {
+.key[data-map="1"]:hover .key-top {
   transform: translateY(-2px);
   box-shadow:
     0 8px 0 #e67e22,
@@ -205,7 +278,7 @@
     0 0 25px rgba(243, 156, 18, 0.4);
 }
 
-/* Active/pressed effect - SAME FOR ALL KEYS */
+/* Active/pressed effect */
 .key:active .key-top {
   transform: translateY(4px);
   box-shadow:
@@ -228,107 +301,60 @@
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive design */
-@media (max-width: 1200px) {
-  .key {
-    width: 50px;
-    height: 50px;
-  }
-
-  .key-letter {
-    font-size: 1.2rem;
-  }
-
-  .boba-sprite {
-    width: 45px;
-    height: 45px;
-  }
-
-  .boba-shadow {
-    width: 35px;
-    height: 8px;
-    bottom: -20px;
-  }
-
-  .game-title {
-    font-size: 2.5rem;
-  }
+/* Debug info styling */
+.debug-info {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-family: "Monaco", "Courier New", monospace;
+  max-width: 100%;
+  overflow: hidden;
 }
 
-@media (max-width: 900px) {
-  .game-container {
-    padding: 1rem;
-  }
-
-  .game-board {
-    padding: 2rem;
-  }
-
-  .key {
-    width: 45px;
-    height: 45px;
-  }
-
-  .key-letter {
-    font-size: 1.1rem;
-  }
-
-  .boba-sprite {
-    width: 40px;
-    height: 40px;
-  }
-
-  .boba-shadow {
-    width: 30px;
-    height: 7px;
-    bottom: -18px;
-  }
-
-  .keyboard-row {
-    gap: 4px;
-  }
-
-  .keyboard-map {
-    gap: 6px;
-  }
+.map-display {
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  line-height: 1.1;
+  max-height: 120px;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  border-radius: 5px;
+  word-break: break-all;
+  white-space: nowrap;
 }
 
-@media (max-width: 600px) {
-  .game-header {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
+.map-row {
+  display: flex;
+  gap: 1px;
+  margin-bottom: 1px;
+  flex-wrap: nowrap;
+}
 
-  .key {
-    width: 35px;
-    height: 35px;
-  }
+.map-cell {
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  font-weight: bold;
+  font-size: 0.6rem;
+  flex-shrink: 0;
+}
 
-  .key-letter {
-    font-size: 0.9rem;
-  }
+.map-0 {
+  background: #34495e;
+  color: #7f8c8d;
+}
 
-  .boba-sprite {
-    width: 35px;
-    height: 35px;
-  }
+.map-1 {
+  background: #f39c12;
+  color: white;
+}
 
-  .boba-shadow {
-    width: 25px;
-    height: 6px;
-    bottom: -15px;
-  }
-
-  .game-title {
-    font-size: 2rem;
-  }
-
-  .keyboard-row {
-    gap: 3px;
-  }
-
-  .keyboard-map {
-    gap: 4px;
-  }
+.map-3 {
+  background: #3498db;
+  color: white;
 }
