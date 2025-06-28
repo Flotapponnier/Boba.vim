@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeMovement();
   initializeMapToggle();
   initializeTutorialMode();
+  initializeChatHistory();
 });
 
 function initializeGame() {
@@ -18,6 +19,96 @@ let tutorialCommands = [
   { key: "k", message: "Press K to go UP ↑" },
   { key: "l", message: "Press L to go RIGHT →" },
 ];
+
+let chatHistory = [];
+let chatHistoryVisible = false;
+
+function initializeChatHistory() {
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "\\") {
+      toggleChatHistory();
+      event.preventDefault();
+    }
+  });
+}
+
+function addToChatHistory(message) {
+  const timestamp = new Date().toLocaleTimeString();
+  chatHistory.push({
+    time: timestamp,
+    message: message,
+  });
+
+  if (chatHistory.length > 50) {
+    chatHistory.shift();
+  }
+}
+
+function toggleChatHistory() {
+  chatHistoryVisible = !chatHistoryVisible;
+  let chatWindow = document.getElementById("chatHistoryWindow");
+
+  if (chatHistoryVisible) {
+    if (!chatWindow) {
+      createChatHistoryWindow();
+    } else {
+      chatWindow.style.display = "block";
+      updateChatHistoryContent();
+    }
+  } else {
+    if (chatWindow) {
+      chatWindow.style.display = "none";
+    }
+  }
+}
+
+function createChatHistoryWindow() {
+  const chatWindow = document.createElement("div");
+  chatWindow.id = "chatHistoryWindow";
+  chatWindow.className = "chat-history-window";
+
+  chatWindow.innerHTML = `
+    <div class="chat-history-header">
+      <h3>Chat History</h3>
+      <button class="chat-close-btn" onclick="toggleChatHistory()">×</button>
+    </div>
+    <div class="chat-history-content" id="chatHistoryContent">
+      ${chatHistory.length === 0 ? '<p class="no-history">No commands yet. Start moving with HJKL!</p>' : ""}
+    </div>
+    <div class="chat-history-footer">
+      Press \\ to close | Total commands: <span id="commandCount">${chatHistory.length}</span>
+    </div>
+  `;
+
+  document.body.appendChild(chatWindow);
+  updateChatHistoryContent();
+}
+
+function updateChatHistoryContent() {
+  const content = document.getElementById("chatHistoryContent");
+  const commandCount = document.getElementById("commandCount");
+
+  if (chatHistory.length === 0) {
+    content.innerHTML =
+      '<p class="no-history">No commands yet. Start moving with HJKL!</p>';
+  } else {
+    content.innerHTML = chatHistory
+      .map(
+        (entry) =>
+          `<div class="chat-entry">
+        <span class="chat-time">[${entry.time}]</span>
+        <span class="chat-message">${entry.message}</span>
+      </div>`,
+      )
+      .join("");
+
+    content.scrollTop = content.scrollHeight;
+  }
+
+  if (commandCount) {
+    commandCount.textContent = chatHistory.length;
+  }
+}
 
 function initializeTutorialMode() {
   document.addEventListener("keydown", function (event) {
@@ -34,11 +125,13 @@ function toggleTutorialMode() {
 
   if (tutorialMode) {
     headerInfo.innerHTML = `<strong style="color: #9b59b6;">TUTORIAL MODE ACTIVATED</strong>`;
+    addToChatHistory("Tutorial mode activated");
     setTimeout(() => {
       generateRandomTutorialCommand();
     }, 1000);
   } else {
     currentTutorialCommand = null;
+    addToChatHistory("Tutorial mode deactivated");
     if (!headerInfo.dataset.originalContent) {
       headerInfo.innerHTML =
         "Welcome! Use HJKL to move | Press - to show map | Press + to activate tutorial";
@@ -118,6 +211,7 @@ function handleTutorialMovement(key) {
 
   if (currentTutorialCommand && key === currentTutorialCommand.key) {
     headerInfo.innerHTML = `<strong style="color: #27ae60;">✓ CORRECT! ${currentTutorialCommand.message}</strong>`;
+    addToChatHistory(`✓ Correct: ${currentTutorialCommand.message}`);
 
     setTimeout(() => {
       generateRandomTutorialCommand();
@@ -126,6 +220,9 @@ function handleTutorialMovement(key) {
     const correctCommand = tutorialCommands.find((cmd) => cmd.key === key);
     if (correctCommand) {
       headerInfo.innerHTML = `<strong style="color: #e74c3c;">✗ Wrong! Expected: ${currentTutorialCommand.message}</strong>`;
+      addToChatHistory(
+        `✗ Wrong: Expected ${currentTutorialCommand.message}, pressed ${correctCommand.message.split(" ")[1]} instead`,
+      );
 
       setTimeout(() => {
         headerInfo.innerHTML = `<strong style="color: #3498db;">${currentTutorialCommand.message}</strong>`;
@@ -150,6 +247,8 @@ function showMovementFeedback(key) {
 
     const message = movementMessages[key] || `You pressed ${key.toUpperCase()}`;
     headerInfo.innerHTML = `<strong style="color: #ff6b6b;">${message}</strong>`;
+
+    addToChatHistory(message);
 
     headerInfo.style.animation = "pulse 0.3s ease-in-out";
 
@@ -187,11 +286,20 @@ function initializeMapToggle() {
           const message = isVisible ? "Map HIDDEN" : "Map SHOWN";
 
           headerInfo.innerHTML = `<strong style="color: #4ecdc4;">You pressed - to toggle map | ${message}</strong>`;
+          addToChatHistory(`You pressed - to toggle map | ${message}`);
 
           setTimeout(() => {
             resetHeaderInfo();
           }, 2000);
         }
+      } else {
+        const mapDisplay = document.getElementById("mapDisplay");
+        const isVisible =
+          mapDisplay &&
+          mapDisplay.style.display !== "none" &&
+          mapDisplay.style.display !== "";
+        const message = isVisible ? "Map HIDDEN" : "Map SHOWN";
+        addToChatHistory(`You pressed - to toggle map | ${message}`);
       }
     }
   });
@@ -239,6 +347,7 @@ async function movePlayer(direction) {
           }
 
           headerInfo.innerHTML = `<strong style="color: #ffd700; animation: pulse 0.5s ease-in-out;">🧋 PEARL COLLECTED! +100 points!</strong>`;
+          addToChatHistory("🧋 PEARL COLLECTED! +100 points!");
 
           setTimeout(() => {
             const movementMessages = {
@@ -253,6 +362,8 @@ async function movePlayer(direction) {
             headerInfo.innerHTML = `<strong style="color: #ff6b6b;">${message}</strong>`;
           }, 1500);
         }
+      } else if (result.pearl_collected && tutorialMode) {
+        addToChatHistory("🧋 PEARL COLLECTED! +100 points!");
       }
     } else {
       console.log("Move blocked:", result.error);
@@ -275,7 +386,19 @@ async function movePlayer(direction) {
             movementMessages[direction] ||
             `You pressed ${direction.toUpperCase()} - BLOCKED!`;
           headerInfo.innerHTML = `<strong style="color: #e74c3c;">${message}</strong>`;
+          addToChatHistory(message);
         }
+      } else {
+        const movementMessages = {
+          h: "You pressed H to go LEFT ← - BLOCKED!",
+          j: "You pressed J to go DOWN ↓ - BLOCKED!",
+          k: "You pressed K to go UP ↑ - BLOCKED!",
+          l: "You pressed L to go RIGHT → - BLOCKED!",
+        };
+        const message =
+          movementMessages[direction] ||
+          `You pressed ${direction.toUpperCase()} - BLOCKED!`;
+        addToChatHistory(message);
       }
     }
   } catch (error) {
