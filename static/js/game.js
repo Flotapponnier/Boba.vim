@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function initializeGame() {
-  console.log("🎮 Boba.vim Text Adventure loaded - Python backend");
+  console.log(" Boba.vim Text Adventure loaded - Python backend");
 }
 
 function initializeBackToMenuButton() {
@@ -31,10 +31,44 @@ function initializeMovement() {
     const key = event.key.toLowerCase();
 
     if (["h", "j", "k", "l"].includes(key)) {
+      showMovementFeedback(key);
+
       movePlayer(key);
       event.preventDefault();
     }
   });
+}
+
+function showMovementFeedback(key) {
+  const movementMessages = {
+    h: "You pressed H to go LEFT ←",
+    j: "You pressed J to go DOWN ↓",
+    k: "You pressed K to go UP ↑",
+    l: "You pressed L to go RIGHT →",
+  };
+
+  const headerInfo = document.querySelector(".header-info");
+  if (headerInfo) {
+    if (!headerInfo.dataset.originalContent) {
+      headerInfo.dataset.originalContent = headerInfo.innerHTML;
+    }
+
+    const message = movementMessages[key] || `You pressed ${key.toUpperCase()}`;
+    headerInfo.innerHTML = `<strong style="color: #ff6b6b;">${message}</strong>`;
+
+    headerInfo.style.animation = "pulse 0.3s ease-in-out";
+
+    setTimeout(() => {
+      headerInfo.style.animation = "";
+    }, 300);
+  }
+}
+
+function resetHeaderInfo() {
+  const headerInfo = document.querySelector(".header-info");
+  if (headerInfo && headerInfo.dataset.originalContent) {
+    headerInfo.innerHTML = headerInfo.dataset.originalContent;
+  }
 }
 
 function initializeMapToggle() {
@@ -42,6 +76,28 @@ function initializeMapToggle() {
     if (event.key === "-") {
       toggleMap();
       event.preventDefault();
+
+      // Show feedback for map toggle
+      const headerInfo = document.querySelector(".header-info");
+      if (headerInfo) {
+        if (!headerInfo.dataset.originalContent) {
+          headerInfo.dataset.originalContent = headerInfo.innerHTML;
+        }
+
+        const mapDisplay = document.getElementById("mapDisplay");
+        const isVisible =
+          mapDisplay &&
+          mapDisplay.style.display !== "none" &&
+          mapDisplay.style.display !== "";
+        const message = isVisible ? "Map HIDDEN" : "Map SHOWN";
+
+        headerInfo.innerHTML = `<strong style="color: #4ecdc4;">You pressed - to toggle map | ${message}</strong>`;
+
+        // Return to original after 2 seconds
+        setTimeout(() => {
+          resetHeaderInfo();
+        }, 2000);
+      }
     }
   });
 }
@@ -80,9 +136,51 @@ async function movePlayer(direction) {
 
       if (result.pearl_collected) {
         console.log("Pearl collected! +100 points");
+
+        const headerInfo = document.querySelector(".header-info");
+        if (headerInfo) {
+          if (!headerInfo.dataset.originalContent) {
+            headerInfo.dataset.originalContent = headerInfo.innerHTML;
+          }
+
+          headerInfo.innerHTML = `<strong style="color: #ffd700; animation: pulse 0.5s ease-in-out;">🧋 PEARL COLLECTED! +100 points!</strong>`;
+
+          setTimeout(() => {
+            const movementMessages = {
+              h: "You pressed H to go LEFT ←",
+              j: "You pressed J to go DOWN ↓",
+              k: "You pressed K to go UP ↑",
+              l: "You pressed L to go RIGHT →",
+            };
+            const message =
+              movementMessages[direction] ||
+              `You pressed ${direction.toUpperCase()}`;
+            headerInfo.innerHTML = `<strong style="color: #ff6b6b;">${message}</strong>`;
+          }, 1500);
+        }
       }
     } else {
       console.log("Move blocked:", result.error);
+
+      // Show blocked movement feedback
+      const headerInfo = document.querySelector(".header-info");
+      if (headerInfo) {
+        if (!headerInfo.dataset.originalContent) {
+          headerInfo.dataset.originalContent = headerInfo.innerHTML;
+        }
+
+        const movementMessages = {
+          h: "You pressed H to go LEFT ← - BLOCKED!",
+          j: "You pressed J to go DOWN ↓ - BLOCKED!",
+          k: "You pressed K to go UP ↑ - BLOCKED!",
+          l: "You pressed L to go RIGHT → - BLOCKED!",
+        };
+
+        const message =
+          movementMessages[direction] ||
+          `You pressed ${direction.toUpperCase()} - BLOCKED!`;
+        headerInfo.innerHTML = `<strong style="color: #e74c3c;">${message}</strong>`;
+      }
     }
   } catch (error) {
     console.error("Error moving player:", error);

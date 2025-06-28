@@ -17,13 +17,18 @@
     <div class="game-container">
       <div class="game-header">
         <h1 class="game-title">🧋 Boba.vim</h1>
-        <div class="header-info">
-          <p>
-            Press <strong>-</strong> to toggle map | Score:
-            <span id="score">0</span>
-          </p>
+
+        <div class="header-center">
+          <div class="header-info">
+            Welcome! Use HJKL to move | Press - to show map | Press + to
+            activate tutorial
+          </div>
         </div>
-        <button id="backMenu" class="btn">← Menu</button>
+
+        <div class="header-right">
+          <div class="score-display">Score: <strong id="score">0</strong></div>
+          <button id="backMenu" class="btn">← Menu</button>
+        </div>
       </div>
 
       <div class="game-board">
@@ -71,7 +76,7 @@
       <div class="game-info" id="mapDisplay" style="display: none">
         <div class="debug-info">
           <h3>Game Map</h3>
-          <p>Map Legend: 0=Empty, 1=Player, 3=Pearl</p>
+          <p>Map Legend: 0=Empty, 1=Player, 3=Pearl | Press - to toggle</p>
           <div class="map-display" id="mapGrid">
             {% for row in game_map %}
             <div class="map-row">
