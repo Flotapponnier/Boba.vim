@@ -3,10 +3,59 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeBackToMenuButton();
   initializeMovement();
   initializeMapToggle();
+  initializeTutorialMode();
 });
 
 function initializeGame() {
   console.log("🎮 Boba.vim Text Adventure loaded - Python backend");
+}
+
+let tutorialMode = false;
+let currentTutorialCommand = null;
+let tutorialCommands = [
+  { key: "h", message: "Press H to go LEFT ←" },
+  { key: "j", message: "Press J to go DOWN ↓" },
+  { key: "k", message: "Press K to go UP ↑" },
+  { key: "l", message: "Press L to go RIGHT →" },
+];
+
+function initializeTutorialMode() {
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "+") {
+      toggleTutorialMode();
+      event.preventDefault();
+    }
+  });
+}
+
+function toggleTutorialMode() {
+  tutorialMode = !tutorialMode;
+  const headerInfo = document.querySelector(".header-info");
+
+  if (tutorialMode) {
+    headerInfo.innerHTML = `<strong style="color: #9b59b6;">TUTORIAL MODE ACTIVATED</strong>`;
+    setTimeout(() => {
+      generateRandomTutorialCommand();
+    }, 1000);
+  } else {
+    currentTutorialCommand = null;
+    if (!headerInfo.dataset.originalContent) {
+      headerInfo.innerHTML =
+        "Welcome! Use HJKL to move | Press - to show map | Press + to activate tutorial";
+    } else {
+      headerInfo.innerHTML = headerInfo.dataset.originalContent;
+    }
+  }
+}
+
+function generateRandomTutorialCommand() {
+  if (!tutorialMode) return;
+
+  const randomIndex = Math.floor(Math.random() * tutorialCommands.length);
+  currentTutorialCommand = tutorialCommands[randomIndex];
+
+  const headerInfo = document.querySelector(".header-info");
+  headerInfo.innerHTML = `<strong style="color: #3498db;">${currentTutorialCommand.message}</strong>`;
 }
 
 function initializeBackToMenuButton() {
@@ -34,20 +83,20 @@ function initializeMovement() {
     const key = event.key.toLowerCase();
 
     if (["h", "j", "k", "l"].includes(key)) {
-      // Prevent key repeat - only allow movement if key was released or it's a different key
       if (event.repeat || (lastKeyPressed === key && !keyReleased)) {
         event.preventDefault();
         return;
       }
 
-      // Mark that this key is now pressed
       lastKeyPressed = key;
       keyReleased = false;
 
-      // Show movement feedback immediately
-      showMovementFeedback(key);
+      if (tutorialMode) {
+        handleTutorialMovement(key);
+      } else {
+        showMovementFeedback(key);
+      }
 
-      // Then perform the move
       movePlayer(key);
       event.preventDefault();
     }
@@ -57,12 +106,32 @@ function initializeMovement() {
     const key = event.key.toLowerCase();
 
     if (["h", "j", "k", "l"].includes(key)) {
-      // Mark that the key has been released
       if (lastKeyPressed === key) {
         keyReleased = true;
       }
     }
   });
+}
+
+function handleTutorialMovement(key) {
+  const headerInfo = document.querySelector(".header-info");
+
+  if (currentTutorialCommand && key === currentTutorialCommand.key) {
+    headerInfo.innerHTML = `<strong style="color: #27ae60;">✓ CORRECT! ${currentTutorialCommand.message}</strong>`;
+
+    setTimeout(() => {
+      generateRandomTutorialCommand();
+    }, 1000);
+  } else if (currentTutorialCommand) {
+    const correctCommand = tutorialCommands.find((cmd) => cmd.key === key);
+    if (correctCommand) {
+      headerInfo.innerHTML = `<strong style="color: #e74c3c;">✗ Wrong! Expected: ${currentTutorialCommand.message}</strong>`;
+
+      setTimeout(() => {
+        headerInfo.innerHTML = `<strong style="color: #3498db;">${currentTutorialCommand.message}</strong>`;
+      }, 1500);
+    }
+  }
 }
 
 function showMovementFeedback(key) {
@@ -75,19 +144,15 @@ function showMovementFeedback(key) {
 
   const headerInfo = document.querySelector(".header-info");
   if (headerInfo) {
-    // Store the original content if we haven't already
     if (!headerInfo.dataset.originalContent) {
       headerInfo.dataset.originalContent = headerInfo.innerHTML;
     }
 
-    // Show the movement message
     const message = movementMessages[key] || `You pressed ${key.toUpperCase()}`;
     headerInfo.innerHTML = `<strong style="color: #ff6b6b;">${message}</strong>`;
 
-    // Add a pulsing animation to make it more noticeable
     headerInfo.style.animation = "pulse 0.3s ease-in-out";
 
-    // Reset animation after it completes
     setTimeout(() => {
       headerInfo.style.animation = "";
     }, 300);
@@ -107,26 +172,26 @@ function initializeMapToggle() {
       toggleMap();
       event.preventDefault();
 
-      // Show feedback for map toggle
-      const headerInfo = document.querySelector(".header-info");
-      if (headerInfo) {
-        if (!headerInfo.dataset.originalContent) {
-          headerInfo.dataset.originalContent = headerInfo.innerHTML;
+      if (!tutorialMode) {
+        const headerInfo = document.querySelector(".header-info");
+        if (headerInfo) {
+          if (!headerInfo.dataset.originalContent) {
+            headerInfo.dataset.originalContent = headerInfo.innerHTML;
+          }
+
+          const mapDisplay = document.getElementById("mapDisplay");
+          const isVisible =
+            mapDisplay &&
+            mapDisplay.style.display !== "none" &&
+            mapDisplay.style.display !== "";
+          const message = isVisible ? "Map HIDDEN" : "Map SHOWN";
+
+          headerInfo.innerHTML = `<strong style="color: #4ecdc4;">You pressed - to toggle map | ${message}</strong>`;
+
+          setTimeout(() => {
+            resetHeaderInfo();
+          }, 2000);
         }
-
-        const mapDisplay = document.getElementById("mapDisplay");
-        const isVisible =
-          mapDisplay &&
-          mapDisplay.style.display !== "none" &&
-          mapDisplay.style.display !== "";
-        const message = isVisible ? "Map HIDDEN" : "Map SHOWN";
-
-        headerInfo.innerHTML = `<strong style="color: #4ecdc4;">You pressed - to toggle map | ${message}</strong>`;
-
-        // Return to original after 2 seconds
-        setTimeout(() => {
-          resetHeaderInfo();
-        }, 2000);
       }
     }
   });
@@ -164,10 +229,9 @@ async function movePlayer(direction) {
       updateGameDisplay(result.game_map);
       updateScore(result.score);
 
-      if (result.pearl_collected) {
+      if (result.pearl_collected && !tutorialMode) {
         console.log("Pearl collected! +100 points");
 
-        // Show pearl collection feedback
         const headerInfo = document.querySelector(".header-info");
         if (headerInfo) {
           if (!headerInfo.dataset.originalContent) {
@@ -176,7 +240,6 @@ async function movePlayer(direction) {
 
           headerInfo.innerHTML = `<strong style="color: #ffd700; animation: pulse 0.5s ease-in-out;">🧋 PEARL COLLECTED! +100 points!</strong>`;
 
-          // Return to movement message after 1.5 seconds
           setTimeout(() => {
             const movementMessages = {
               h: "You pressed H to go LEFT ←",
@@ -194,24 +257,25 @@ async function movePlayer(direction) {
     } else {
       console.log("Move blocked:", result.error);
 
-      // Show blocked movement feedback
-      const headerInfo = document.querySelector(".header-info");
-      if (headerInfo) {
-        if (!headerInfo.dataset.originalContent) {
-          headerInfo.dataset.originalContent = headerInfo.innerHTML;
+      if (!tutorialMode) {
+        const headerInfo = document.querySelector(".header-info");
+        if (headerInfo) {
+          if (!headerInfo.dataset.originalContent) {
+            headerInfo.dataset.originalContent = headerInfo.innerHTML;
+          }
+
+          const movementMessages = {
+            h: "You pressed H to go LEFT ← - BLOCKED!",
+            j: "You pressed J to go DOWN ↓ - BLOCKED!",
+            k: "You pressed K to go UP ↑ - BLOCKED!",
+            l: "You pressed L to go RIGHT → - BLOCKED!",
+          };
+
+          const message =
+            movementMessages[direction] ||
+            `You pressed ${direction.toUpperCase()} - BLOCKED!`;
+          headerInfo.innerHTML = `<strong style="color: #e74c3c;">${message}</strong>`;
         }
-
-        const movementMessages = {
-          h: "You pressed H to go LEFT ← - BLOCKED!",
-          j: "You pressed J to go DOWN ↓ - BLOCKED!",
-          k: "You pressed K to go UP ↑ - BLOCKED!",
-          l: "You pressed L to go RIGHT → - BLOCKED!",
-        };
-
-        const message =
-          movementMessages[direction] ||
-          `You pressed ${direction.toUpperCase()} - BLOCKED!`;
-        headerInfo.innerHTML = `<strong style="color: #e74c3c;">${message}</strong>`;
       }
     }
   } catch (error) {
