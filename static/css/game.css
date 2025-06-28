@@ -171,7 +171,7 @@
   width: 100vw;
   height: 100vh;
   position: relative;
-  padding: 1rem;
+  padding: 0.8rem;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -181,13 +181,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  padding: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0.8rem;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 15px;
   backdrop-filter: blur(10px);
   flex-shrink: 0;
-  min-height: 80px;
+  min-height: 100px;
 }
 
 .game-title {
@@ -317,7 +317,7 @@
 .game-board {
   background: linear-gradient(135deg, #2c3e50, #34495e);
   border-radius: 20px;
-  padding: 2rem;
+  padding: 1.5rem;
   border: 6px solid #1a252f;
   box-shadow:
     inset 0 0 30px rgba(0, 0, 0, 0.4),
@@ -326,8 +326,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   min-height: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.game-board::-webkit-scrollbar {
+  display: none;
 }
 
 .keyboard-map {
@@ -336,7 +343,7 @@
   gap: 6px;
   align-items: flex-start;
   max-width: 100%;
-  max-height: 100%;
+  padding: 1rem 0;
 }
 
 .keyboard-row {
