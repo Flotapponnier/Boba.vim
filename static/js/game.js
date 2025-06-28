@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function initializeGame() {
-  console.log(" Boba.vim Text Adventure loaded - Python backend");
+  console.log("🎮 Boba.vim Text Adventure loaded - Python backend");
 }
 
 function initializeBackToMenuButton() {
@@ -27,14 +27,40 @@ function initializeBackToMenuButton() {
 }
 
 function initializeMovement() {
+  let lastKeyPressed = null;
+  let keyReleased = true;
+
   document.addEventListener("keydown", function (event) {
     const key = event.key.toLowerCase();
 
     if (["h", "j", "k", "l"].includes(key)) {
+      // Prevent key repeat - only allow movement if key was released or it's a different key
+      if (event.repeat || (lastKeyPressed === key && !keyReleased)) {
+        event.preventDefault();
+        return;
+      }
+
+      // Mark that this key is now pressed
+      lastKeyPressed = key;
+      keyReleased = false;
+
+      // Show movement feedback immediately
       showMovementFeedback(key);
 
+      // Then perform the move
       movePlayer(key);
       event.preventDefault();
+    }
+  });
+
+  document.addEventListener("keyup", function (event) {
+    const key = event.key.toLowerCase();
+
+    if (["h", "j", "k", "l"].includes(key)) {
+      // Mark that the key has been released
+      if (lastKeyPressed === key) {
+        keyReleased = true;
+      }
     }
   });
 }
@@ -49,15 +75,19 @@ function showMovementFeedback(key) {
 
   const headerInfo = document.querySelector(".header-info");
   if (headerInfo) {
+    // Store the original content if we haven't already
     if (!headerInfo.dataset.originalContent) {
       headerInfo.dataset.originalContent = headerInfo.innerHTML;
     }
 
+    // Show the movement message
     const message = movementMessages[key] || `You pressed ${key.toUpperCase()}`;
     headerInfo.innerHTML = `<strong style="color: #ff6b6b;">${message}</strong>`;
 
+    // Add a pulsing animation to make it more noticeable
     headerInfo.style.animation = "pulse 0.3s ease-in-out";
 
+    // Reset animation after it completes
     setTimeout(() => {
       headerInfo.style.animation = "";
     }, 300);
@@ -137,6 +167,7 @@ async function movePlayer(direction) {
       if (result.pearl_collected) {
         console.log("Pearl collected! +100 points");
 
+        // Show pearl collection feedback
         const headerInfo = document.querySelector(".header-info");
         if (headerInfo) {
           if (!headerInfo.dataset.originalContent) {
@@ -145,6 +176,7 @@ async function movePlayer(direction) {
 
           headerInfo.innerHTML = `<strong style="color: #ffd700; animation: pulse 0.5s ease-in-out;">🧋 PEARL COLLECTED! +100 points!</strong>`;
 
+          // Return to movement message after 1.5 seconds
           setTimeout(() => {
             const movementMessages = {
               h: "You pressed H to go LEFT ←",
