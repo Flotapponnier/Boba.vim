@@ -5,7 +5,15 @@ block css %}
   href="{{ url_for('static', filename='css/index.css') }}"
 />
 {% endblock %} {% block content %}
-<h1>🧋 boba.vim</h1>
+
+<div class="home-banner">
+  <img
+    src="{{ url_for('static', filename='sprites/boba_vim_banneer.png') }}"
+    alt="Boba.vim Banner"
+    class="banner-image"
+  />
+</div>
+
 <p class="welcome-text">
   Welcome to the ultimate vim-inspired boba experience!
 </p>

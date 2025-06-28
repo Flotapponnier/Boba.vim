@@ -25,6 +25,27 @@
   font-family: "Monaco", "Courier New", monospace;
 }
 
+/* Game Header Banner */
+.game-header-banner {
+  height: 80px;
+  margin-right: 10px;
+  vertical-align: middle;
+  opacity: 0;
+  animation: fadeInBanner 1.5s ease-in-out 0.5s forwards;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes fadeInBanner {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .chat-history-header {
   display: flex;
   justify-content: space-between;
