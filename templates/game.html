@@ -1,11 +1,14 @@
-{% extends "base.html" %} {% block title %}boba.vim - Game{% endblock %} {%
-block css %}
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename='css/game.css') }}"
-/>
-{% endblock %} {% block container_class %}game-container{% endblock %} {% block
-content %}
+{% extends "base.html" %}
+
+{% block title %}boba.vim - Game{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}" />
+{% endblock %}
+
+{% block container_class %}game-container{% endblock %}
+
+{% block content %}
 <div class="game-header">
   <h1 class="game-title">🧋 Time to boba</h1>
   <div class="game-controls">
@@ -19,6 +22,8 @@ content %}
     <div class="status-value" id="score">0</div>
   </div>
 </div>
-{% endblock %} {% block scripts %}
+{% endblock %}
+
+{% block scripts %}
 <script src="{{ url_for('static', filename='js/game.js') }}"></script>
 {% endblock %}
