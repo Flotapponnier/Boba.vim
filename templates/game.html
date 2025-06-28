@@ -8,6 +8,11 @@ block css %}
 content %}
 <div class="game-header">
   <h1 class="game-title">🧋 Boba.vim</h1>
+  <div class="header-info">
+    <p>
+      Press <strong>-</strong> to toggle map | Score: <span id="score">0</span>
+    </p>
+  </div>
   <button id="backMenu" class="btn">← Menu</button>
 </div>
 
@@ -28,7 +33,6 @@ content %}
           <span class="key-letter">{{ letter }}</span>
 
           {% if map_value == 1 %}
-          <!-- Player (Boba character) -->
           <div class="boba-character">
             <div class="boba-shadow"></div>
             <img
@@ -38,7 +42,6 @@ content %}
             />
           </div>
           {% elif map_value == 3 %}
-          <!-- Pearl -->
           <div class="pearl">
             <div class="pearl-shadow"></div>
             <img
@@ -56,10 +59,11 @@ content %}
   </div>
 </div>
 
-<div class="game-info">
+<div class="game-info" id="mapDisplay" style="display: none">
   <div class="debug-info">
+    <h3>Game Map</h3>
     <p>Map Legend: 0=Empty, 1=Player, 3=Pearl</p>
-    <div class="map-display">
+    <div class="map-display" id="mapGrid">
       {% for row in game_map %}
       <div class="map-row">
         {% for value in row %}

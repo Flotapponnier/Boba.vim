@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeGame();
   initializeBackToMenuButton();
   initializeMovement();
+  initializeMapToggle();
 });
 
 function initializeGame() {
@@ -34,6 +35,29 @@ function initializeMovement() {
       event.preventDefault();
     }
   });
+}
+
+function initializeMapToggle() {
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "-") {
+      toggleMap();
+      event.preventDefault();
+    }
+  });
+}
+
+function toggleMap() {
+  const mapDisplay = document.getElementById("mapDisplay");
+  if (mapDisplay) {
+    if (
+      mapDisplay.style.display === "none" ||
+      mapDisplay.style.display === ""
+    ) {
+      mapDisplay.style.display = "block";
+    } else {
+      mapDisplay.style.display = "none";
+    }
+  }
 }
 
 async function movePlayer(direction) {
@@ -108,8 +132,8 @@ function updateGameDisplay(gameMap) {
 }
 
 function updateDebugDisplay(gameMap) {
-  const mapDisplay = document.querySelector(".map-display");
-  if (mapDisplay) {
+  const mapGrid = document.getElementById("mapGrid");
+  if (mapGrid) {
     let html = "";
     for (let row = 0; row < gameMap.length; row++) {
       html += '<div class="map-row">';
@@ -119,7 +143,7 @@ function updateDebugDisplay(gameMap) {
       }
       html += "</div>";
     }
-    mapDisplay.innerHTML = html;
+    mapGrid.innerHTML = html;
   }
 }
 

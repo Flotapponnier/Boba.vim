@@ -46,17 +46,15 @@ Florent."""
 def create_game_map(text_grid):
     game_map = []
 
-    # Initialize all positions as empty
     for row_idx, row in enumerate(text_grid):
         map_row = []
         for col_idx, char in enumerate(row):
             if row_idx == 0 and col_idx == 0:
-                map_row.append(1)  # Player at (0,0)
+                map_row.append(1)
             else:
-                map_row.append(0)  # Empty
+                map_row.append(0)
         game_map.append(map_row)
 
-    # Place pearl avoiding player position (0,0)
     place_new_pearl(game_map, 0, 0)
 
     return game_map
@@ -116,7 +114,6 @@ def move_player():
         pearl_collected = True
         score += 100
 
-        # Place pearl in new location (not on player's new position)
         place_new_pearl(game_map, new_row, new_col)
 
     game_map[current_row][current_col] = 0
@@ -140,12 +137,10 @@ def move_player():
 
 
 def place_new_pearl(game_map, player_row, player_col):
-    """Place a pearl at a random empty position, avoiding the player"""
     empty_positions = []
 
     for row_idx in range(len(game_map)):
         for col_idx in range(len(game_map[row_idx])):
-            # Find empty positions that are not the player's position
             if game_map[row_idx][col_idx] == 0 and not (
                 row_idx == player_row and col_idx == player_col
             ):
