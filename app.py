@@ -105,7 +105,10 @@ def move_player():
 
         if new_row < len(game_map):
             target_row_length = len(game_map[new_row])
-            new_col = min(preferred_column, target_row_length - 1)
+            if preferred_column >= target_row_length:
+                new_col = target_row_length - 1
+            else:
+                new_col = preferred_column
         else:
             new_col = current_col
     elif direction == "k":
@@ -115,7 +118,10 @@ def move_player():
 
         if new_row >= 0:
             target_row_length = len(game_map[new_row])
-            new_col = min(preferred_column, target_row_length - 1)
+            if preferred_column >= target_row_length:
+                new_col = target_row_length - 1
+            else:
+                new_col = preferred_column
         else:
             new_col = current_col
     else:
