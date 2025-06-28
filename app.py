@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request, session
 import os
 import random
 from dotenv import load_dotenv
@@ -46,20 +46,18 @@ Florent."""
 def create_game_map(text_grid):
     game_map = []
 
+    # Initialize all positions as empty
     for row_idx, row in enumerate(text_grid):
         map_row = []
         for col_idx, char in enumerate(row):
             if row_idx == 0 and col_idx == 0:
-                map_row.append(1)
+                map_row.append(1)  # Player at (0,0)
             else:
-                map_row.append(0)
+                map_row.append(0)  # Empty
         game_map.append(map_row)
 
-    total_rows = len(text_grid)
-    if total_rows > 1:
-        pearl_row = random.randint(1, total_rows - 1)
-        pearl_col = random.randint(0, len(text_grid[pearl_row]) - 1)
-        game_map[pearl_row][pearl_col] = 3
+    # Place pearl avoiding player position (0,0)
+    place_new_pearl(game_map, 0, 0)
 
     return game_map
 
@@ -74,7 +72,99 @@ def play():
     text_grid = create_text_lines()
     game_map = create_game_map(text_grid)
 
+    session["text_grid"] = text_grid
+    session["game_map"] = game_map
+    session["player_pos"] = {"row": 0, "col": 0}
+    session["score"] = 0
+
     return render_template("game.html", text_grid=text_grid, game_map=game_map)
+
+
+@app.route("/api/move", methods=["POST"])
+def move_player():
+    data = request.get_json()
+    direction = data.get("direction")
+
+    game_map = session.get("game_map", [])
+    player_pos = session.get("player_pos", {"row": 0, "col": 0})
+    score = session.get("score", 0)
+
+    current_row = player_pos["row"]
+    current_col = player_pos["col"]
+
+    if direction == "h":
+        new_row, new_col = current_row, current_col - 1
+    elif direction == "j":
+        new_row, new_col = current_row + 1, current_col
+    elif direction == "k":
+        new_row, new_col = current_row - 1, current_col
+    elif direction == "l":
+        new_row, new_col = current_row, current_col + 1
+    else:
+        return jsonify({"success": False, "error": "Invalid direction"})
+
+    if new_row < 0 or new_row >= len(game_map):
+        return jsonify({"success": False, "error": "Out of bounds"})
+
+    if new_col < 0 or new_col >= len(game_map[new_row]):
+        return jsonify({"success": False, "error": "Out of bounds"})
+
+    target_value = game_map[new_row][new_col]
+    pearl_collected = False
+
+    if target_value == 3:
+        pearl_collected = True
+        score += 100
+
+        # Place pearl in new location (not on player's new position)
+        place_new_pearl(game_map, new_row, new_col)
+
+    game_map[current_row][current_col] = 0
+    game_map[new_row][new_col] = 1
+
+    new_player_pos = {"row": new_row, "col": new_col}
+
+    session["game_map"] = game_map
+    session["player_pos"] = new_player_pos
+    session["score"] = score
+
+    return jsonify(
+        {
+            "success": True,
+            "game_map": game_map,
+            "player_pos": new_player_pos,
+            "score": score,
+            "pearl_collected": pearl_collected,
+        }
+    )
+
+
+def place_new_pearl(game_map, player_row, player_col):
+    """Place a pearl at a random empty position, avoiding the player"""
+    empty_positions = []
+
+    for row_idx in range(len(game_map)):
+        for col_idx in range(len(game_map[row_idx])):
+            # Find empty positions that are not the player's position
+            if game_map[row_idx][col_idx] == 0 and not (
+                row_idx == player_row and col_idx == player_col
+            ):
+                empty_positions.append((row_idx, col_idx))
+
+    if empty_positions:
+        pearl_row, pearl_col = random.choice(empty_positions)
+        game_map[pearl_row][pearl_col] = 3
+
+
+@app.route("/api/game-state")
+def get_game_state():
+    return jsonify(
+        {
+            "game_map": session.get("game_map", []),
+            "player_pos": session.get("player_pos", {"row": 0, "col": 0}),
+            "score": session.get("score", 0),
+        }
+    )
 
 
 @app.route("/api/playtutorial")
