@@ -14,8 +14,6 @@ def create_text_lines():
 This game is here to help you learn the vim motions fundamental,
 it's a long journey over there ! but with patience,
 determination !
-I'm sure you gonna make it ! 
-Best of luck,
 Florent."""
 
     text = text.replace("\n", " ").strip()
