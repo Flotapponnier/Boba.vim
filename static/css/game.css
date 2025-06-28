@@ -1,162 +1,334 @@
-/* Game page specific styles */
+/* Game page - Big 3D Keyboard Style */
 
 .game-container {
-  max-width: 800px;
+  max-width: 1400px;
   width: 95%;
-  min-height: 600px;
+  min-height: 100vh;
   position: relative;
+  padding: 2rem;
 }
 
 .game-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  padding: 1rem;
+  margin-bottom: 3rem;
+  padding: 1.5rem;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  backdrop-filter: blur(5px);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
 }
 
 .game-title {
-  font-size: 2rem;
+  font-size: 3rem;
   color: #333;
   margin: 0;
-}
-
-.game-controls {
-  display: flex;
-  gap: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 #backMenu {
   background: linear-gradient(45deg, #e74c3c, #c0392b);
-  font-size: 1rem;
-  padding: 0.8rem 1.5rem;
+  font-size: 1.2rem;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  transition: all 0.3s ease;
 }
 
 #backMenu:hover {
   background: linear-gradient(45deg, #c0392b, #a93226);
+  transform: translateY(-2px);
 }
 
-/* Game area */
-.game-area {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 15px;
-  padding: 2rem;
-  min-height: 400px;
+/* Game board */
+.game-board {
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  border-radius: 20px;
+  padding: 3rem;
+  border: 6px solid #1a252f;
+  box-shadow:
+    inset 0 0 30px rgba(0, 0, 0, 0.4),
+    0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Keyboard map */
+.keyboard-map {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.keyboard-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+/* 3D Keyboard Keys - ALL SAME STYLE */
+.key {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  perspective: 100px;
+}
+
+.key-top {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+  border: 3px solid #dee2e6;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
-  color: #333;
-  border: 2px dashed rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  overflow: visible;
+
+  /* 3D Effect - SAME FOR ALL KEYS */
+  box-shadow:
+    0 6px 0 #adb5bd,
+    0 8px 12px rgba(0, 0, 0, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+
+  transform: translateZ(0);
 }
 
-/* Game status - positioned at top */
-.game-status {
-  margin-top: 1rem;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  text-align: center;
-}
-
-.status-item {
-  flex: 1;
-  max-width: 200px;
-}
-
-.status-label {
-  font-size: 1rem;
-  color: #555;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 0.5rem;
-}
-
-.status-value {
-  font-size: 2rem;
+/* Letters on keys */
+.key-letter {
+  font-family: "Monaco", "Consolas", "Courier New", monospace;
+  font-size: 1.4rem;
   font-weight: bold;
-  color: #333;
+  color: #495057;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  user-select: none;
+}
+
+.key[data-letter=" "] .key-letter {
+  content: "";
+}
+
+/* Boba Character */
+.boba-character {
+  position: absolute;
+  top: 70%;
+  left: 115%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.boba-sprite {
+  width: 70px;
+  height: 70px;
+  display: block;
+  position: relative;
+  z-index: 2;
+
+  /* Jumping animation */
+  animation: bobaJump 2s ease-in-out infinite;
+
+  /* Add some glow effect */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.boba-shadow {
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 8px;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: 1;
+
+  /* Shadow animation - opposite of jump */
+  animation: bobaShadow 2s ease-in-out infinite;
+}
+
+/* Jumping animation keyframes */
+@keyframes bobaJump {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) translateY(0px);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-12px);
+  }
+}
+
+/* Shadow animation keyframes */
+@keyframes bobaShadow {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateX(-50%) scale(0.8);
+    opacity: 0.2;
+  }
+}
+
+/* Make the key with boba character slightly more prominent */
+.key:has(.boba-character) .key-top {
+  background: linear-gradient(145deg, #fff3cd, #ffeaa7);
+  border-color: #f39c12;
+  box-shadow:
+    0 6px 0 #e67e22,
+    0 8px 12px rgba(0, 0, 0, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.1),
+    0 0 20px rgba(243, 156, 18, 0.3);
+}
+
+/* Hover effect - SAME FOR ALL KEYS */
+.key:hover .key-top {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 0 #adb5bd,
+    0 12px 16px rgba(0, 0, 0, 0.4),
+    inset 0 2px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Special hover for boba key */
+.key:has(.boba-character):hover .key-top {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 0 #e67e22,
+    0 12px 16px rgba(0, 0, 0, 0.4),
+    inset 0 2px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.1),
+    0 0 25px rgba(243, 156, 18, 0.4);
+}
+
+/* Active/pressed effect - SAME FOR ALL KEYS */
+.key:active .key-top {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px 0 #adb5bd,
+    0 3px 6px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Game info */
+.game-info {
+  margin-top: 2rem;
+  text-align: center;
+  color: #555;
+  font-size: 1.1rem;
+}
+
+.game-info p {
+  margin: 0.5rem 0;
+  font-weight: bold;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Game controls panel */
-.control-panel {
-  margin-top: 2rem;
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.control-btn {
-  background: linear-gradient(45deg, #3498db, #2980b9);
-  border: none;
-  color: white;
-  font-size: 1rem;
-  font-family: inherit;
-  font-weight: bold;
-  padding: 0.8rem 1.5rem;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.control-btn:hover {
-  background: linear-gradient(45deg, #2980b9, #1c6ea4);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
-
-.control-btn:active {
-  transform: translateY(0);
-}
-
-.control-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Responsive design for game */
-@media (max-width: 768px) {
-  .game-container {
-    max-width: 100%;
-    margin: 1rem;
+/* Responsive design */
+@media (max-width: 1200px) {
+  .key {
+    width: 50px;
+    height: 50px;
   }
 
+  .key-letter {
+    font-size: 1.2rem;
+  }
+
+  .boba-sprite {
+    width: 45px;
+    height: 45px;
+  }
+
+  .boba-shadow {
+    width: 35px;
+    height: 8px;
+    bottom: -20px;
+  }
+
+  .game-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .game-container {
+    padding: 1rem;
+  }
+
+  .game-board {
+    padding: 2rem;
+  }
+
+  .key {
+    width: 45px;
+    height: 45px;
+  }
+
+  .key-letter {
+    font-size: 1.1rem;
+  }
+
+  .boba-sprite {
+    width: 40px;
+    height: 40px;
+  }
+
+  .boba-shadow {
+    width: 30px;
+    height: 7px;
+    bottom: -18px;
+  }
+
+  .keyboard-row {
+    gap: 4px;
+  }
+
+  .keyboard-map {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 600px) {
   .game-header {
     flex-direction: column;
     gap: 1rem;
     text-align: center;
   }
 
-  .game-controls {
-    justify-content: center;
+  .key {
+    width: 35px;
+    height: 35px;
   }
 
-  .game-area {
-    min-height: 300px;
-    font-size: 1rem;
+  .key-letter {
+    font-size: 0.9rem;
   }
 
-  .game-status {
-    flex-direction: column;
-    gap: 1rem;
+  .boba-sprite {
+    width: 35px;
+    height: 35px;
   }
 
-  .control-panel {
-    flex-direction: column;
-    align-items: center;
+  .boba-shadow {
+    width: 25px;
+    height: 6px;
+    bottom: -15px;
   }
 
-  .control-btn {
-    min-width: 200px;
+  .game-title {
+    font-size: 2rem;
+  }
+
+  .keyboard-row {
+    gap: 3px;
+  }
+
+  .keyboard-map {
+    gap: 4px;
   }
 }

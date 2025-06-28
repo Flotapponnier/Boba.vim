@@ -8,6 +8,39 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "boba-secret-key")
 
 
+def create_text_lines():
+    """Convert text to lines with natural word breaks"""
+    text = """Welcome to 
+boba.vim !
+This game 
+is here to
+help you learn 
+the 
+vim motions 
+fundamental,
+it's a 
+long journey over 
+there !
+but with patience,
+determination !
+I'm sure you 
+gonna make it ! 
+Best of luck,
+Florent."""
+
+    lines = text.strip().split("\n")
+
+    grid = []
+    for line in lines:
+        if line.strip():
+            char_list = []
+            for char in line:
+                char_list.append(char)
+            grid.append(char_list)
+
+    return grid
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -15,7 +48,14 @@ def index():
 
 @app.route("/api/play")
 def play():
-    return render_template("game.html")
+    grid = create_text_lines()
+
+    # Debug: print the grid structure
+    print("Grid structure:")
+    for i, row in enumerate(grid):
+        print(f"Row {i}: {len(row)} characters - {''.join(row)}")
+
+    return render_template("game.html", grid=grid)
 
 
 @app.route("/api/playtutorial")

@@ -1,29 +1,48 @@
-{% extends "base.html" %}
-
-{% block title %}boba.vim - Game{% endblock %}
-
-{% block css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}" />
-{% endblock %}
-
-{% block container_class %}game-container{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}boba.vim - Game{% endblock %} {%
+block css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/game.css') }}"
+/>
+{% endblock %} {% block container_class %}game-container{% endblock %} {% block
+content %}
 <div class="game-header">
-  <h1 class="game-title">🧋 Time to boba</h1>
-  <div class="game-controls">
-    <button id="backMenu" class="btn">← Menu</button>
+  <h1 class="game-title">🧋 Boba.vim</h1>
+  <button id="backMenu" class="btn">← Menu</button>
+</div>
+
+<div class="game-board">
+  <div class="keyboard-map">
+    {% for row in grid %} {% set row_index = loop.index0 %}
+    <div class="keyboard-row">
+      {% for letter in row %} {% set col_index = loop.index0 %}
+      <div
+        class="key"
+        data-letter="{{ letter }}"
+        data-row="{{ row_index }}"
+        data-col="{{ col_index }}"
+      >
+        <div class="key-top">
+          <span class="key-letter">{{ letter }}</span>
+          {% if row_index == 0 and col_index == 0 %}
+          <div class="boba-character">
+            <div class="boba-shadow"></div>
+            <img
+              src="{{ url_for('static', filename='sprites/boba.png') }}"
+              alt="Boba"
+              class="boba-sprite"
+            />
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
   </div>
 </div>
 
-<div class="game-status">
-  <div class="status-item">
-    <div class="status-label">Score</div>
-    <div class="status-value" id="score">0</div>
-  </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
+<div class="game-info"></div>
+{% endblock %} {% block scripts %}
 <script src="{{ url_for('static', filename='js/game.js') }}"></script>
 {% endblock %}
