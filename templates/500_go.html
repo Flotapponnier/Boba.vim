@@ -8,11 +8,17 @@
     <link rel="stylesheet" href="/static/css/global.css" />
   </head>
   <body>
+    <!-- Animated clouds background -->
+    <div class="clouds-container" id="clouds-background"></div>
+    
     <div class="container">
       <h1>🧋 Something went wrong!</h1>
       <p>Our boba machine is having issues. Please try again later.</p>
       <p>{{.error}}</p>
       <button onclick="window.location.href='/'" class="btn">🏠 Go Home</button>
     </div>
+    
+    <!-- Cloud animation system -->
+    <script src="/static/js/cloud.js"></script>
   </body>
 </html>

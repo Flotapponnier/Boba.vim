@@ -5,18 +5,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{.title}}</title>
-
     <!-- Global CSS -->
     <link rel="stylesheet" href="/static/css/global.css" />
-
     <!-- Page-specific CSS -->
     {{block "css" .}}{{end}}
   </head>
   <body>
+    <!-- Animated clouds background -->
+    <div class="clouds-container" id="clouds-background"></div>
+    
     <div class="container {{block "container_class" .}}{{end}}">
       {{block "content" .}}{{end}}
     </div>
-
+    
+    <!-- Cloud animation system -->
+    <script src="/static/js/cloud.js"></script>
+    
     <!-- Page-specific JavaScript -->
     {{block "scripts" .}}{{end}}
   </body>
