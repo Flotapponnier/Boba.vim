@@ -1,14 +1,7 @@
-{% extends "base.html" %} {% block title %}boba.vim - Play{% endblock %} {%
-block css %}
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename='css/index.css') }}"
-/>
-{% endblock %} {% block content %}
-
+{{define "content"}}
 <div class="home-banner">
   <img
-    src="{{ url_for('static', filename='sprites/boba_vim_banneer.png') }}"
+    src="/static/sprites/boba_vim_banneer.png"
     alt="Boba.vim Banner"
     class="banner-image"
   />
@@ -24,6 +17,14 @@ block css %}
   <button id="playOnline" class="btn">🧋 Play online</button>
   <button id="leaderboardButton" class="btn secondary">🏆 Leaderboard</button>
 </div>
-{% endblock %} {% block scripts %}
-<script src="{{ url_for('static', filename='js/index.js') }}"></script>
-{% endblock %}
+{{end}}
+
+{{define "css"}}
+<link rel="stylesheet" href="/static/css/index.css" />
+{{end}}
+
+{{define "scripts"}}
+<script src="/static/js/index.js"></script>
+{{end}}
+
+{{template "base_go.html" .}}

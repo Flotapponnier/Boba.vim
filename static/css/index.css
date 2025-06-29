@@ -83,6 +83,15 @@
   background: linear-gradient(45deg, #8e44ad, #7d3c98);
 }
 
+/* Leaderboard button styling */
+#leaderboardButton {
+  background: linear-gradient(45deg, #f39c12, #e67e22);
+}
+
+#leaderboardButton:hover {
+  background: linear-gradient(45deg, #e67e22, #d35400);
+}
+
 /* Welcome text */
 .welcome-text {
   font-size: 1.1rem;

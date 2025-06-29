@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>boba.vim - Game</title>
+    <link rel="stylesheet" href="/static/css/global.css" />
+    <link rel="stylesheet" href="/static/css/game.css" />
+  </head>
+  <body class="game-page">
+    <div class="game-container">
+      <div class="game-header">
+        <h1 class="game-title">
+          <img
+            src="/static/sprites/boba_vim_banneer.png"
+            alt="Boba.vim"
+            class="game-header-banner"
+          />
+          🧋 Boba.vim
+        </h1>
+
+        <div class="header-center">
+          <div class="header-info">
+            Welcome! Use HJKL to move | Press - to show map | Press + to
+            activate tutorial
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="score-display">Score: <strong id="score">{{.score}}</strong></div>
+          <button id="backMenu" class="btn">← Menu</button>
+        </div>
+      </div>
+
+      <div class="game-board">
+        <div class="keyboard-map">
+          {{range $rowIndex, $row := .text_grid}}
+          <div class="keyboard-row">
+            {{range $colIndex, $letter := $row}}
+            {{$mapValue := index (index $.game_map $rowIndex) $colIndex}}
+            <div
+              class="key"
+              data-letter="{{$letter}}"
+              data-row="{{$rowIndex}}"
+              data-col="{{$colIndex}}"
+              data-map="{{$mapValue}}"
+            >
+              <div class="key-top">
+                <span class="key-letter">{{$letter}}</span>
+                {{if eq $mapValue 1}}
+                <div class="boba-character">
+                  <div class="boba-shadow"></div>
+                  <img
+                    src="/static/sprites/boba.png"
+                    alt="Boba"
+                    class="boba-sprite"
+                  />
+                </div>
+                {{else if eq $mapValue 3}}
+                <div class="pearl">
+                  <div class="pearl-shadow"></div>
+                  <img
+                    src="/static/sprites/pearl.png"
+                    alt="Pearl"
+                    class="pearl-sprite"
+                  />
+                </div>
+                {{end}}
+              </div>
+            </div>
+            {{end}}
+          </div>
+          {{end}}
+        </div>
+      </div>
+
+      <div class="game-info" id="mapDisplay" style="display: none">
+        <div class="debug-info">
+          <h3>Game Map</h3>
+          <p>Map Legend: 0=Empty, 1=Player, 3=Pearl | Press - to toggle</p>
+          <div class="map-display" id="mapGrid">
+            {{range $row := .game_map}}
+            <div class="map-row">
+              {{range $value := $row}}
+              <span class="map-cell map-{{$value}}">{{$value}}</span>
+              {{end}}
+            </div>
+            {{end}}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script
+      type="module"
+      src="/static/js/game.js"
+    ></script>
+  </body>
+</html>

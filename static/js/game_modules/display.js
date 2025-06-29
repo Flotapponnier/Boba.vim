@@ -10,30 +10,34 @@ export function updateGameDisplay(gameMap) {
     if (oldMapValue !== newMapValue) {
       key.setAttribute("data-map", newMapValue);
 
-      const existingBoba = key.querySelector(".boba-character");
-      const existingPearl = key.querySelector(".pearl");
-      if (existingBoba) existingBoba.remove();
-      if (existingPearl) existingPearl.remove();
-
       const keyTop = key.querySelector(".key-top");
+      
+      // More thorough cleanup - remove all game elements
+      const existingElements = keyTop.querySelectorAll(".boba-character, .pearl");
+      existingElements.forEach(element => {
+        element.remove();
+      });
 
-      if (newMapValue === 1) {
-        const bobaDiv = document.createElement("div");
-        bobaDiv.className = "boba-character";
-        bobaDiv.innerHTML = `
-          <div class="boba-shadow"></div>
-          <img src="/static/sprites/boba.png" alt="Boba" class="boba-sprite">
-        `;
-        keyTop.appendChild(bobaDiv);
-      } else if (newMapValue === 3) {
-        const pearlDiv = document.createElement("div");
-        pearlDiv.className = "pearl";
-        pearlDiv.innerHTML = `
-          <div class="pearl-shadow"></div>
-          <img src="/static/sprites/pearl.png" alt="Pearl" class="pearl-sprite">
-        `;
-        keyTop.appendChild(pearlDiv);
-      }
+      // Force DOM to flush the removal before adding new elements
+      requestAnimationFrame(() => {
+        if (newMapValue === 1) {
+          const bobaDiv = document.createElement("div");
+          bobaDiv.className = "boba-character";
+          bobaDiv.innerHTML = `
+            <div class="boba-shadow"></div>
+            <img src="/static/sprites/boba.png" alt="Boba" class="boba-sprite">
+          `;
+          keyTop.appendChild(bobaDiv);
+        } else if (newMapValue === 3) {
+          const pearlDiv = document.createElement("div");
+          pearlDiv.className = "pearl";
+          pearlDiv.innerHTML = `
+            <div class="pearl-shadow"></div>
+            <img src="/static/sprites/pearl.png" alt="Pearl" class="pearl-sprite">
+          `;
+          keyTop.appendChild(pearlDiv);
+        }
+      });
     }
   });
 

@@ -8,12 +8,14 @@ export const MOVEMENT_KEYS = {
   k: { direction: "k", description: "UP ↑" },
   l: { direction: "l", description: "RIGHT →" },
 
-  // Future keys can be added here
-  // w: { direction: "w", description: "WORD FORWARD →" },
-  // b: { direction: "b", description: "WORD BACK ←" },
-  // e: { direction: "e", description: "END WORD →" },
-  // 0: { direction: "0", description: "LINE START ←" },
-  // $: { direction: "$", description: "LINE END →" },
+  // Word movements
+  w: { direction: "w", description: "WORD FORWARD →" },
+  b: { direction: "b", description: "WORD BACK ←" },
+  e: { direction: "e", description: "END WORD →" },
+  
+  // Line movements
+  "0": { direction: "0", description: "LINE START ←" },
+  "$": { direction: "$", description: "LINE END →" },
 };
 
 // Generate movement messages dynamically
@@ -112,6 +114,9 @@ export const API_ENDPOINTS = {
   GAME_STATE: "/api/game-state",
   PLAY_TUTORIAL: "/api/playtutorial",
   PLAY_ONLINE: "/api/playonline",
+  SET_USERNAME: "/api/set-username",
+  LEADERBOARD: "/api/leaderboard",
+  PLAYER_STATS: "/api/player-stats",
 };
 
 // ================================
