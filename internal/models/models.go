@@ -12,6 +12,9 @@ import (
 type Player struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
 	Username  string    `gorm:"unique;not null" json:"username"`
+	Email     string    `gorm:"unique;not null" json:"email"`
+	Password  string    `gorm:"not null" json:"-"` // Don't include in JSON responses
+	IsRegistered bool   `gorm:"default:false" json:"is_registered"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
@@ -29,6 +32,7 @@ type GameSession struct {
 	SessionToken  string    `gorm:"unique;not null" json:"session_token"`
 	PlayerID      uint      `json:"player_id"`
 	Player        Player    `gorm:"foreignKey:PlayerID" json:"player,omitempty"`
+	SelectedCharacter string `gorm:"default:boba" json:"selected_character"`
 	
 	// Game state with mutex for concurrent access
 	gameMapMutex  sync.RWMutex `gorm:"-" json:"-"`

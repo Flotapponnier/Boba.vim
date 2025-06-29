@@ -37,8 +37,11 @@ func (wh *WebHandler) PlayGame(c *gin.Context) {
 		username = "Anonymous"
 	}
 
+	// Get selected character from query parameter, default to "boba"
+	selectedCharacter := c.DefaultQuery("character", "boba")
+
 	// Create new game
-	result, err := wh.gameService.CreateNewGame(username.(string))
+	result, err := wh.gameService.CreateNewGame(username.(string), selectedCharacter)
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "500_go.html", gin.H{
 			"error": "Failed to initialize game: " + err.Error(),
@@ -66,10 +69,11 @@ func (wh *WebHandler) PlayGame(c *gin.Context) {
 	gameData := result["game_data"].(map[string]interface{})
 
 	c.HTML(http.StatusOK, "game_go.html", gin.H{
-		"title":     "Boba.vim - Game",
-		"text_grid": gameData["text_grid"],
-		"game_map":  gameData["game_map"],
-		"score":     gameData["score"],
+		"title":              "Boba.vim - Game",
+		"text_grid":          gameData["text_grid"],
+		"game_map":           gameData["game_map"],
+		"score":              gameData["score"],
+		"selected_character": gameData["selected_character"],
 	})
 }
 

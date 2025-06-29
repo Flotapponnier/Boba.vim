@@ -23,9 +23,16 @@ export function updateGameDisplay(gameMap) {
         if (newMapValue === 1) {
           const bobaDiv = document.createElement("div");
           bobaDiv.className = "boba-character";
+          
+          // Get the correct sprite based on selected character
+          const character = window.selectedCharacter || "boba";
+          const spriteUrl = character === "boba" 
+            ? "/static/sprites/boba.png" 
+            : `/static/sprites/${character}_boba.png`;
+          
           bobaDiv.innerHTML = `
             <div class="boba-shadow"></div>
-            <img src="/static/sprites/boba.png" alt="Boba" class="boba-sprite">
+            <img src="${spriteUrl}" alt="${character} Boba" class="boba-sprite">
           `;
           keyTop.appendChild(bobaDiv);
         } else if (newMapValue === 3) {

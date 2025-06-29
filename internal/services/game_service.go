@@ -24,73 +24,105 @@ func NewGameService(db *gorm.DB, cfg *config.Config) *GameService {
 }
 
 // CreateNewGame creates a new secure game session
-func (gs *GameService) CreateNewGame(username string) (map[string]interface{}, error) {
-	// Get or create player
-	var player models.Player
-	result := gs.db.Where("username = ?", username).First(&player)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			player = models.Player{
-				Username:    username,
-				TotalGames:  0,
-				BestScore:   0,
-				TotalPearls: 0,
-				TotalMoves:  0,
-			}
-			if err := gs.db.Create(&player).Error; err != nil {
-				return nil, err
-			}
-		} else {
-			return nil, result.Error
-		}
+func (gs *GameService) CreateNewGame(username, selectedCharacter string) (map[string]interface{}, error) {
+	// Default to 'boba' if no character provided
+	if selectedCharacter == "" {
+		selectedCharacter = "boba"
 	}
-
-	// Deactivate existing active sessions
-	gs.db.Model(&models.GameSession{}).
-		Where("player_id = ? AND is_active = ?", player.ID, true).
-		Update("is_active", false)
 
 	// Initialize game data
 	gameData := game.InitializeGameSession()
 
-	// Create new game session
-	gameSession := &models.GameSession{
-		PlayerID:        player.ID,
-		CurrentScore:    0,
-		CurrentRow:      gameData["player_pos"].(map[string]int)["row"],
-		CurrentCol:      gameData["player_pos"].(map[string]int)["col"],
-		PreferredColumn: gameData["preferred_column"].(int),
-		TotalMoves:      0,
-		PearlsCollected: 0,
-		IsActive:        true,
-		IsCompleted:     false,
-	}
+	var gameSession *models.GameSession
+	
+	// Handle anonymous users (store in database with PlayerID = 0)
+	if username == "Anonymous" {
+		// Deactivate any existing anonymous sessions (optional cleanup)
+		gs.db.Model(&models.GameSession{}).
+			Where("player_id = 0 AND is_active = ?", true).
+			Update("is_active", false)
 
-	// Set game map and text grid
-	gameSession.SetGameMap(gameData["game_map"].([][]int))
-	gameSession.SetTextGrid(gameData["text_grid"].([][]string))
+		// Create new game session for anonymous user
+		gameSession = &models.GameSession{
+			PlayerID:          0, // 0 indicates anonymous user
+			SelectedCharacter: selectedCharacter,
+			CurrentScore:      0,
+			CurrentRow:        gameData["player_pos"].(map[string]int)["row"],
+			CurrentCol:        gameData["player_pos"].(map[string]int)["col"],
+			PreferredColumn:   gameData["preferred_column"].(int),
+			TotalMoves:        0,
+			PearlsCollected:   0,
+			IsActive:          true,
+			IsCompleted:       false,
+		}
 
-	if err := gs.db.Create(gameSession).Error; err != nil {
-		return nil, err
+		// Set game map and text grid
+		gameSession.SetGameMap(gameData["game_map"].([][]int))
+		gameSession.SetTextGrid(gameData["text_grid"].([][]string))
+
+		if err := gs.db.Create(gameSession).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		// Handle registered users
+		var player models.Player
+		result := gs.db.Where("username = ?", username).First(&player)
+		if result.Error != nil {
+			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+				// This shouldn't happen for registered users
+				return nil, errors.New("user not found - please register first")
+			} else {
+				return nil, result.Error
+			}
+		}
+
+		// Deactivate existing active sessions
+		gs.db.Model(&models.GameSession{}).
+			Where("player_id = ? AND is_active = ?", player.ID, true).
+			Update("is_active", false)
+
+		// Create new game session for registered user
+		gameSession = &models.GameSession{
+			PlayerID:          player.ID,
+			SelectedCharacter: selectedCharacter,
+			CurrentScore:      0,
+			CurrentRow:        gameData["player_pos"].(map[string]int)["row"],
+			CurrentCol:        gameData["player_pos"].(map[string]int)["col"],
+			PreferredColumn:   gameData["preferred_column"].(int),
+			TotalMoves:        0,
+			PearlsCollected:   0,
+			IsActive:          true,
+			IsCompleted:       false,
+		}
+
+		// Set game map and text grid
+		gameSession.SetGameMap(gameData["game_map"].([][]int))
+		gameSession.SetTextGrid(gameData["text_grid"].([][]string))
+
+		if err := gs.db.Create(gameSession).Error; err != nil {
+			return nil, err
+		}
 	}
 
 	return map[string]interface{}{
 		"success":       true,
 		"session_token": gameSession.SessionToken,
 		"game_data": map[string]interface{}{
-			"text_grid":    gameData["text_grid"],
-			"game_map":     gameSession.GetGameMap(),
-			"player_pos":   map[string]int{"row": gameSession.CurrentRow, "col": gameSession.CurrentCol},
-			"score":        gameSession.CurrentScore,
-			"is_completed": gameSession.IsCompleted,
+			"text_grid":          gameData["text_grid"],
+			"game_map":           gameSession.GetGameMap(),
+			"player_pos":         map[string]int{"row": gameSession.CurrentRow, "col": gameSession.CurrentCol},
+			"score":              gameSession.CurrentScore,
+			"is_completed":       gameSession.IsCompleted,
+			"selected_character": gameSession.SelectedCharacter,
 		},
 	}, nil
 }
 
 // ProcessMove processes a move with full concurrency control
 func (gs *GameService) ProcessMove(sessionToken, direction string) (map[string]interface{}, error) {
-	// Get game session with lock
 	var gameSession models.GameSession
+	
+	// Get session from database (works for both anonymous and registered users)
 	if err := gs.db.Where("session_token = ? AND is_active = ?", sessionToken, true).First(&gameSession).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return map[string]interface{}{
@@ -100,6 +132,9 @@ func (gs *GameService) ProcessMove(sessionToken, direction string) (map[string]i
 		}
 		return nil, err
 	}
+	
+	// Check if it's an anonymous user (PlayerID = 0)
+	isAnonymous := gameSession.PlayerID == 0
 
 	// Check if game is completed
 	if gameSession.IsCompleted {
@@ -155,7 +190,7 @@ func (gs *GameService) ProcessMove(sessionToken, direction string) (map[string]i
 	// Check if target position has a pearl
 	pearlCollected := gameMap[movementResult.NewRow][movementResult.NewCol] == game.PEARL
 
-	// Process the move atomically
+	// Process the move using database transaction (for both anonymous and registered users)
 	err = gs.db.Transaction(func(tx *gorm.DB) error {
 		// Reload session in transaction to ensure fresh state
 		var txGameSession models.GameSession
@@ -185,8 +220,10 @@ func (gs *GameService) ProcessMove(sessionToken, direction string) (map[string]i
 		// Check if game should be completed
 		if txGameSession.CurrentScore >= gs.cfg.TargetScore {
 			txGameSession.CompleteGame()
-			// Update player stats
-			gs.updatePlayerStats(tx, txGameSession.PlayerID, &txGameSession)
+			// Update player stats only for registered users
+			if !isAnonymous {
+				gs.updatePlayerStats(tx, txGameSession.PlayerID, &txGameSession)
+			}
 		}
 
 		// Validate score integrity
@@ -194,11 +231,11 @@ func (gs *GameService) ProcessMove(sessionToken, direction string) (map[string]i
 			return errors.New("score integrity validation failed")
 		}
 
-		// Save the session
-		gameSession = txGameSession // Update our local copy
+		// Save the session and update our local copy
+		gameSession = txGameSession
 		return tx.Save(&txGameSession).Error
 	})
-
+	
 	if err != nil {
 		return map[string]interface{}{
 			"success": false,
@@ -224,6 +261,8 @@ func (gs *GameService) ProcessMove(sessionToken, direction string) (map[string]i
 // GetGameState returns current game state
 func (gs *GameService) GetGameState(sessionToken string) (map[string]interface{}, error) {
 	var gameSession models.GameSession
+	
+	// Get session from database (works for both anonymous and registered users)
 	if err := gs.db.Where("session_token = ? AND is_active = ?", sessionToken, true).First(&gameSession).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return map[string]interface{}{
@@ -253,12 +292,13 @@ func (gs *GameService) GetGameState(sessionToken string) (map[string]interface{}
 // GetLeaderboard returns leaderboard data
 func (gs *GameService) GetLeaderboard(boardType string, limit int) (map[string]interface{}, error) {
 	var sessions []models.GameSession
-	query := gs.db.Preload("Player").Where("is_completed = ?", true)
+	query := gs.db.Preload("Player").Where("is_completed = ? AND player_id > 0", true) // Exclude anonymous sessions
 
-	if boardType == "time" {
-		query = query.Where("completion_time IS NOT NULL").Order("completion_time ASC")
-	} else {
+	if boardType == "score" {
 		query = query.Order("final_score DESC")
+	} else {
+		// Default to time-based leaderboard (fastest times first)
+		query = query.Where("completion_time IS NOT NULL").Order("completion_time ASC")
 	}
 
 	if err := query.Limit(limit).Find(&sessions).Error; err != nil {

@@ -74,6 +74,7 @@ func (gh *GameHandler) MovePlayer(c *gin.Context) {
 	// Get session token
 	session := sessions.Default(c)
 	sessionToken := session.Get("game_session_token")
+	
 	if sessionToken == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
@@ -121,7 +122,7 @@ func (gh *GameHandler) GetGameState(c *gin.Context) {
 
 // GetLeaderboard returns leaderboard data
 func (gh *GameHandler) GetLeaderboard(c *gin.Context) {
-	boardType := c.DefaultQuery("type", "score")
+	boardType := c.DefaultQuery("type", "time")
 	limitStr := c.DefaultQuery("limit", "10")
 	
 	limit, err := strconv.Atoi(limitStr)

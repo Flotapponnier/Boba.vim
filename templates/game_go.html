@@ -54,11 +54,19 @@
                 {{if eq $mapValue 1}}
                 <div class="boba-character">
                   <div class="boba-shadow"></div>
+                  {{if eq $.selected_character "boba"}}
                   <img
                     src="/static/sprites/boba.png"
                     alt="Boba"
                     class="boba-sprite"
                   />
+                  {{else}}
+                  <img
+                    src="/static/sprites/{{$.selected_character}}_boba.png"
+                    alt="{{$.selected_character}} Boba"
+                    class="boba-sprite"
+                  />
+                  {{end}}
                 </div>
                 {{else if eq $mapValue 3}}
                 <div class="pearl">
@@ -98,6 +106,10 @@
     <!-- Cloud animation system -->
     <script src="/static/js/cloud.js"></script>
 
+    <!-- Pass selected character to JavaScript -->
+    <script>
+      window.selectedCharacter = "{{.selected_character}}";
+    </script>
     <script type="module" src="/static/js/game.js"></script>
   </body>
 </html>

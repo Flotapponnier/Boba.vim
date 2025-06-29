@@ -41,6 +41,7 @@ func main() {
 	// Initialize handlers
 	gameHandler := handlers.NewGameHandler(db)
 	webHandler := handlers.NewWebHandler(db)
+	authHandler := handlers.NewAuthHandler(db)
 
 	// Web routes
 	router.GET("/", webHandler.Index)
@@ -65,6 +66,15 @@ func main() {
 		api.GET("/movements", gameHandler.GetAvailableMovements)
 		api.GET("/player-stats", gameHandler.GetPlayerStats)
 		api.POST("/playonline", gameHandler.PlayOnline)
+		
+		// Authentication routes
+		auth := api.Group("/auth")
+		{
+			auth.POST("/register", authHandler.Register)
+			auth.POST("/login", authHandler.Login)
+			auth.POST("/logout", authHandler.Logout)
+			auth.GET("/me", authHandler.GetCurrentUser)
+		}
 		
 		// Test error pages
 		api.GET("/test-500", webHandler.InternalServerError)
