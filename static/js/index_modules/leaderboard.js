@@ -8,6 +8,14 @@ export function initializeLeaderboardButton() {
 
   console.log("Initializing leaderboard button...");
 
+  leaderboardButton.addEventListener("mouseenter", function () {
+    leaderboardButton.textContent = "🧋";
+  });
+
+  leaderboardButton.addEventListener("mouseleave", function () {
+    leaderboardButton.textContent = "🏆 Leaderboard";
+  });
+
   leaderboardButton.addEventListener("click", async function () {
     console.log("Leaderboard button clicked");
 

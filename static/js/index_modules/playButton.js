@@ -8,6 +8,14 @@ export function initializePlayButton() {
 
   console.log("Initializing play button...");
 
+  playButton.addEventListener("mouseenter", function () {
+    playButton.textContent = "🧋";
+  });
+
+  playButton.addEventListener("mouseleave", function () {
+    playButton.textContent = "🧋 Play";
+  });
+
   playButton.addEventListener("click", async function () {
     console.log("Play button clicked");
 

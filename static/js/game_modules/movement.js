@@ -212,37 +212,46 @@ function showCompletionModal(result) {
           <p><strong>Final Score:</strong> ${result.final_score}</p>
           <p><strong>Completion Time:</strong> ${result.completion_time ? formatTime(result.completion_time) : "--:--"}</p>
         </div>
-        <div style="margin: 1.5rem 0;">
+        <div style="margin: 1.5rem 0; display: flex; flex-direction: column; gap: 1rem; align-items: center;">
           <button id="viewLeaderboard" style="
-            background: #3498db;
+            background: linear-gradient(45deg, #f39c12, #e67e22);
             color: white;
             border: none;
-            padding: 0.8rem 1.5rem;
-            margin: 0.5rem;
-            border-radius: 5px;
+            padding: 1rem 2rem;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 1rem;
-          ">View Leaderboard</button>
+            font-size: 1.1rem;
+            font-weight: bold;
+            min-width: 200px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+          ">🏆 Leaderboard</button>
           <button id="playAgain" style="
-            background: #27ae60;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
             color: white;
             border: none;
-            padding: 0.8rem 1.5rem;
-            margin: 0.5rem;
-            border-radius: 5px;
+            padding: 1rem 2rem;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 1rem;
-          ">Play Again</button>
+            font-size: 1.1rem;
+            font-weight: bold;
+            min-width: 200px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+          ">🧋 Play Again</button>
           <button id="backToMenu" style="
-            background: #95a5a6;
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
             color: white;
             border: none;
-            padding: 0.8rem 1.5rem;
-            margin: 0.5rem;
-            border-radius: 5px;
+            padding: 1rem 2rem;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 1rem;
-          ">Back to Menu</button>
+            font-size: 1.1rem;
+            font-weight: bold;
+            min-width: 200px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+          ">🧋 Back to Menu</button>
         </div>
       </div>
     </div>
@@ -252,15 +261,51 @@ function showCompletionModal(result) {
   document.body.insertAdjacentHTML("beforeend", modalHTML);
 
   // Add event listeners
-  document.getElementById("viewLeaderboard").addEventListener("click", () => {
+  const viewLeaderboardBtn = document.getElementById("viewLeaderboard");
+  const playAgainBtn = document.getElementById("playAgain");
+  const backToMenuBtn = document.getElementById("backToMenu");
+
+  // Add hover effects
+  viewLeaderboardBtn.addEventListener("mouseenter", function () {
+    this.textContent = "🧋";
+    this.style.transform = "translateY(-3px) scale(1.05)";
+  });
+
+  viewLeaderboardBtn.addEventListener("mouseleave", function () {
+    this.textContent = "🏆 Leaderboard";
+    this.style.transform = "translateY(0) scale(1)";
+  });
+
+  playAgainBtn.addEventListener("mouseenter", function () {
+    this.textContent = "🧋";
+    this.style.transform = "translateY(-3px) scale(1.05)";
+  });
+
+  playAgainBtn.addEventListener("mouseleave", function () {
+    this.textContent = "🧋 Play Again";
+    this.style.transform = "translateY(0) scale(1)";
+  });
+
+  backToMenuBtn.addEventListener("mouseenter", function () {
+    this.textContent = "🧋";
+    this.style.transform = "translateY(-3px) scale(1.05)";
+  });
+
+  backToMenuBtn.addEventListener("mouseleave", function () {
+    this.textContent = "🧋 Back to Menu";
+    this.style.transform = "translateY(0) scale(1)";
+  });
+
+  // Add click event listeners
+  viewLeaderboardBtn.addEventListener("click", () => {
     showLeaderboard();
   });
 
-  document.getElementById("playAgain").addEventListener("click", () => {
+  playAgainBtn.addEventListener("click", () => {
     window.location.href = "/api/play";
   });
 
-  document.getElementById("backToMenu").addEventListener("click", () => {
+  backToMenuBtn.addEventListener("click", () => {
     window.location.href = "/";
   });
 }

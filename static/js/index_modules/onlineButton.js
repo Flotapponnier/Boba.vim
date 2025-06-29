@@ -8,6 +8,14 @@ export function initializeOnlineButton() {
 
   console.log("Initializing online button...");
 
+  playOnline.addEventListener("mouseenter", function () {
+    playOnline.textContent = "🧋";
+  });
+
+  playOnline.addEventListener("mouseleave", function () {
+    playOnline.textContent = "🧋 Play online";
+  });
+
   playOnline.addEventListener("click", async function () {
     console.log("Online button clicked");
 
