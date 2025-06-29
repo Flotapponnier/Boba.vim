@@ -3,7 +3,7 @@ export function initializeMovement() {
   let keyReleased = true;
 
   document.addEventListener("keydown", function (event) {
-    const key = event.key.toLowerCase();
+    const key = event.key;
 
     if (window.VALID_MOVEMENT_KEYS.includes(key)) {
       if (event.repeat || (lastKeyPressed === key && !keyReleased)) {
@@ -26,7 +26,7 @@ export function initializeMovement() {
   });
 
   document.addEventListener("keyup", function (event) {
-    const key = event.key.toLowerCase();
+    const key = event.key;
 
     if (window.VALID_MOVEMENT_KEYS.includes(key)) {
       if (lastKeyPressed === key) {
@@ -36,25 +36,21 @@ export function initializeMovement() {
   });
 }
 
-// Movement state to prevent race conditions
 let movePending = false;
 let lastMoveTime = 0;
-const MOVE_COOLDOWN = 100; // 100ms cooldown between moves
+const MOVE_COOLDOWN = 20;
 
 export async function movePlayer(direction) {
-  // Check if game is completed
   if (window.gameCompleted) {
     console.log("Game is completed, movement disabled");
     return;
   }
 
-  // Prevent race conditions by checking if a move is already pending
   if (movePending) {
     console.log("Move already pending, ignoring");
     return;
   }
 
-  // Implement client-side cooldown to prevent spam
   const now = Date.now();
   if (now - lastMoveTime < MOVE_COOLDOWN) {
     console.log("Move too fast, ignoring");
@@ -71,7 +67,7 @@ export async function movePlayer(direction) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        direction: direction, // Send the key directly, Go backend will handle conversion
+        direction: direction,
       }),
     });
 
@@ -85,7 +81,6 @@ export async function movePlayer(direction) {
   } catch (error) {
     console.error("Error moving player:", error);
   } finally {
-    // Always reset the pending flag
     movePending = false;
   }
 }
@@ -97,8 +92,6 @@ function handleSuccessfulMove(result, direction) {
   if (result.pearl_collected) {
     handlePearlCollection(direction);
   }
-
-  // Check if game is completed
   if (result.is_completed) {
     handleGameCompletion(result);
   }
@@ -157,27 +150,27 @@ function showBlockedMoveFeedback(message) {
 
 function handleGameCompletion(result) {
   console.log("Game completed! Final score:", result.final_score);
-  
+
   // Disable further movement
   window.gameCompleted = true;
-  
+
   // Show completion message
   const headerInfo = document.querySelector(window.UI_SELECTORS.HEADER_INFO);
   if (headerInfo) {
-    const timeText = result.completion_time 
-      ? `Time: ${formatTime(result.completion_time)}` 
+    const timeText = result.completion_time
+      ? `Time: ${formatTime(result.completion_time)}`
       : "Time: --:--";
-    
+
     headerInfo.innerHTML = `<strong style="color: #ffd700; font-size: 1.2em; animation: pulse 1s ease-in-out infinite;">
       🎉 GAME COMPLETED! 🎉<br>
       Final Score: ${result.final_score} | ${timeText}
     </strong>`;
   }
-  
-  // Add to chat history
-  window.chatModule.addToChatHistory(`🎉 CONGRATULATIONS! Game completed with score ${result.final_score}!`);
-  
-  // Show completion modal after a brief delay
+
+  window.chatModule.addToChatHistory(
+    `🎉 CONGRATULATIONS! Game completed with score ${result.final_score}!`,
+  );
+
   setTimeout(() => {
     showCompletionModal(result);
   }, 2000);
@@ -186,7 +179,7 @@ function handleGameCompletion(result) {
 function formatTime(seconds) {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 
 function showCompletionModal(result) {
@@ -217,7 +210,7 @@ function showCompletionModal(result) {
         <h2 style="color: #ffd700; margin-bottom: 1rem;">🎉 Game Completed! 🎉</h2>
         <div style="margin: 1rem 0;">
           <p><strong>Final Score:</strong> ${result.final_score}</p>
-          <p><strong>Completion Time:</strong> ${result.completion_time ? formatTime(result.completion_time) : '--:--'}</p>
+          <p><strong>Completion Time:</strong> ${result.completion_time ? formatTime(result.completion_time) : "--:--"}</p>
         </div>
         <div style="margin: 1.5rem 0;">
           <button id="viewLeaderboard" style="
@@ -254,21 +247,21 @@ function showCompletionModal(result) {
       </div>
     </div>
   `;
-  
+
   // Add modal to page
-  document.body.insertAdjacentHTML('beforeend', modalHTML);
-  
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
   // Add event listeners
-  document.getElementById('viewLeaderboard').addEventListener('click', () => {
+  document.getElementById("viewLeaderboard").addEventListener("click", () => {
     showLeaderboard();
   });
-  
-  document.getElementById('playAgain').addEventListener('click', () => {
-    window.location.href = '/api/play';
+
+  document.getElementById("playAgain").addEventListener("click", () => {
+    window.location.href = "/api/play";
   });
-  
-  document.getElementById('backToMenu').addEventListener('click', () => {
-    window.location.href = '/';
+
+  document.getElementById("backToMenu").addEventListener("click", () => {
+    window.location.href = "/";
   });
 }
 
@@ -276,27 +269,31 @@ async function showLeaderboard() {
   try {
     const response = await fetch(window.API_ENDPOINTS.LEADERBOARD);
     const result = await response.json();
-    
+
     if (result.success) {
       displayLeaderboard(result.leaderboard);
     } else {
-      console.error('Failed to load leaderboard:', result.error);
+      console.error("Failed to load leaderboard:", result.error);
     }
   } catch (error) {
-    console.error('Error loading leaderboard:', error);
+    console.error("Error loading leaderboard:", error);
   }
 }
 
 function displayLeaderboard(leaderboard) {
-  const leaderboardHTML = leaderboard.map(entry => `
+  const leaderboardHTML = leaderboard
+    .map(
+      (entry) => `
     <tr style="border-bottom: 1px solid #34495e;">
       <td style="padding: 0.5rem; text-align: center;">${entry.rank}</td>
       <td style="padding: 0.5rem;">${entry.username}</td>
       <td style="padding: 0.5rem; text-align: center;">${entry.score}</td>
-      <td style="padding: 0.5rem; text-align: center;">${entry.completion_time ? formatTime(entry.completion_time) : '--:--'}</td>
+      <td style="padding: 0.5rem; text-align: center;">${entry.completion_time ? formatTime(entry.completion_time) : "--:--"}</td>
     </tr>
-  `).join('');
-  
+  `,
+    )
+    .join("");
+
   const modalHTML = `
     <div id="leaderboardModal" style="
       position: fixed;
@@ -348,10 +345,10 @@ function displayLeaderboard(leaderboard) {
       </div>
     </div>
   `;
-  
-  document.body.insertAdjacentHTML('beforeend', modalHTML);
-  
-  document.getElementById('closeLeaderboard').addEventListener('click', () => {
-    document.getElementById('leaderboardModal').remove();
+
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  document.getElementById("closeLeaderboard").addEventListener("click", () => {
+    document.getElementById("leaderboardModal").remove();
   });
 }

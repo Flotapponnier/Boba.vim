@@ -66,8 +66,9 @@ func (gs *GameService) CreateNewGame(username string) (map[string]interface{}, e
 		IsCompleted:     false,
 	}
 
-	// Set game map
+	// Set game map and text grid
 	gameSession.SetGameMap(gameData["game_map"].([][]int))
+	gameSession.SetTextGrid(gameData["text_grid"].([][]string))
 
 	if err := gs.db.Create(gameSession).Error; err != nil {
 		return nil, err
@@ -128,11 +129,13 @@ func (gs *GameService) ProcessMove(sessionToken, direction string) (map[string]i
 
 	// Calculate new position
 	gameMap := gameSession.GetGameMap()
+	textGrid := gameSession.GetTextGrid()
 	movementResult, err := game.CalculateNewPosition(
 		directionName["direction"].(string),
 		gameSession.CurrentRow,
 		gameSession.CurrentCol,
 		gameMap,
+		textGrid,
 		gameSession.PreferredColumn,
 	)
 	if err != nil {

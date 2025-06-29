@@ -35,6 +35,11 @@ type GameSession struct {
 	GameMapJSON   string       `json:"-"`
 	gameMap       [][]int      `gorm:"-" json:"game_map"`
 	
+	// Text grid for movement calculations
+	textGridMutex sync.RWMutex  `gorm:"-" json:"-"`
+	TextGridJSON  string        `json:"-"`
+	textGrid      [][]string    `gorm:"-" json:"text_grid"`
+	
 	// Position and game state
 	CurrentRow      int  `json:"current_row"`
 	CurrentCol      int  `json:"current_col"`
@@ -67,15 +72,22 @@ func (gs *GameSession) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-// AfterFind loads game map from JSON
+// AfterFind loads game map and text grid from JSON
 func (gs *GameSession) AfterFind(tx *gorm.DB) error {
 	if gs.GameMapJSON != "" {
-		return json.Unmarshal([]byte(gs.GameMapJSON), &gs.gameMap)
+		if err := json.Unmarshal([]byte(gs.GameMapJSON), &gs.gameMap); err != nil {
+			return err
+		}
+	}
+	if gs.TextGridJSON != "" {
+		if err := json.Unmarshal([]byte(gs.TextGridJSON), &gs.textGrid); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-// BeforeSave saves game map to JSON
+// BeforeSave saves game map and text grid to JSON
 func (gs *GameSession) BeforeSave(tx *gorm.DB) error {
 	gs.gameMapMutex.RLock()
 	defer gs.gameMapMutex.RUnlock()
@@ -86,6 +98,17 @@ func (gs *GameSession) BeforeSave(tx *gorm.DB) error {
 			return err
 		}
 		gs.GameMapJSON = string(mapJSON)
+	}
+	
+	gs.textGridMutex.RLock()
+	defer gs.textGridMutex.RUnlock()
+	
+	if gs.textGrid != nil {
+		textJSON, err := json.Marshal(gs.textGrid)
+		if err != nil {
+			return err
+		}
+		gs.TextGridJSON = string(textJSON)
 	}
 	return nil
 }
@@ -118,6 +141,37 @@ func (gs *GameSession) SetGameMap(gameMap [][]int) {
 	for i, row := range gameMap {
 		gs.gameMap[i] = make([]int, len(row))
 		copy(gs.gameMap[i], row)
+	}
+}
+
+// GetTextGrid returns a copy of the text grid safely
+func (gs *GameSession) GetTextGrid() [][]string {
+	gs.textGridMutex.RLock()
+	defer gs.textGridMutex.RUnlock()
+	
+	if gs.textGrid == nil {
+		return nil
+	}
+	
+	// Return deep copy to prevent external modification
+	textCopy := make([][]string, len(gs.textGrid))
+	for i, row := range gs.textGrid {
+		textCopy[i] = make([]string, len(row))
+		copy(textCopy[i], row)
+	}
+	return textCopy
+}
+
+// SetTextGrid sets the text grid safely
+func (gs *GameSession) SetTextGrid(textGrid [][]string) {
+	gs.textGridMutex.Lock()
+	defer gs.textGridMutex.Unlock()
+	
+	// Create deep copy to prevent external modification
+	gs.textGrid = make([][]string, len(textGrid))
+	for i, row := range textGrid {
+		gs.textGrid[i] = make([]string, len(row))
+		copy(gs.textGrid[i], row)
 	}
 }
 

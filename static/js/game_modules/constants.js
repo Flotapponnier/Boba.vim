@@ -10,26 +10,28 @@ export const MOVEMENT_KEYS = {
 
   // Word movements
   w: { direction: "w", description: "WORD FORWARD →" },
+  W: { direction: "W", description: "WORD FORWARD (space-separated) →" },
   b: { direction: "b", description: "WORD BACK ←" },
+  B: { direction: "B", description: "WORD BACK (space-separated) ←" },
   e: { direction: "e", description: "END WORD →" },
-  
+
   // Line movements
-  "0": { direction: "0", description: "LINE START ←" },
-  "$": { direction: "$", description: "LINE END →" },
+  0: { direction: "0", description: "LINE START ←" },
+  $: { direction: "$", description: "LINE END →" },
 };
 
 // Generate movement messages dynamically
 export const MOVEMENT_MESSAGES = Object.fromEntries(
   Object.entries(MOVEMENT_KEYS).map(([key, config]) => [
     key,
-    `You pressed ${key.toUpperCase()} to go ${config.description}`,
+    `You pressed ${key} to go ${config.description}`,
   ]),
 );
 
 export const BLOCKED_MESSAGES = Object.fromEntries(
   Object.entries(MOVEMENT_KEYS).map(([key, config]) => [
     key,
-    `You pressed ${key.toUpperCase()} to go ${config.description} - BLOCKED!`,
+    `You pressed ${key} to go ${config.description} - BLOCKED!`,
   ]),
 );
 
