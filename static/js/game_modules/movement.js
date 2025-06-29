@@ -367,7 +367,6 @@ function displayLeaderboard(leaderboard) {
             <tr style="background: #34495e;">
               <th style="padding: 0.8rem; text-align: center;">Rank</th>
               <th style="padding: 0.8rem;">Player</th>
-              <th style="padding: 0.8rem; text-align: center;">Score</th>
               <th style="padding: 0.8rem; text-align: center;">Time</th>
             </tr>
           </thead>

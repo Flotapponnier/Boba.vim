@@ -16,12 +16,24 @@ var MovementKeys = map[string]map[string]interface{}{
 	"b": {"direction": "word_backward", "description": "Move backward to beginning of current/previous word"},
 	"B": {"direction": "word_backward_space", "description": "Move backward to beginning of current/previous WORD"},
 	"e": {"direction": "word_end", "description": "Move to end of current/next word"},
+	"E": {"direction": "word_end_space", "description": "Move to end of current/next WORD (space-separated)"},
 	"$": {"direction": "line_end", "description": "Move to end of current line"},
 	"0": {"direction": "line_start", "description": "Move to beginning of current line"},
+	"^": {"direction": "line_first_non_blank", "description": "Move to first non-blank character of line"},
+	"g_": {"direction": "line_last_non_blank", "description": "Move to last non-blank character of line"},
+	"gg": {"direction": "file_start", "description": "Go to top of file"},
+	"G": {"direction": "file_end", "description": "Go to bottom of file"},
+	"H": {"direction": "screen_top", "description": "Go to top of screen"},
+	"M": {"direction": "screen_middle", "description": "Go to middle of screen"},
+	"L": {"direction": "screen_bottom", "description": "Go to bottom of screen"},
+	"{": {"direction": "paragraph_prev", "description": "Go to previous paragraph"},
+	"}": {"direction": "paragraph_next", "description": "Go to next paragraph"},
+	"(": {"direction": "sentence_prev", "description": "Go to previous sentence"},
+	")": {"direction": "sentence_next", "description": "Go to next sentence"},
 }
 
 // ValidMovementKeys list of all valid movement keys
-var ValidMovementKeys = []string{"h", "j", "k", "l", "w", "W", "b", "B", "e", "$", "0"}
+var ValidMovementKeys = []string{"h", "j", "k", "l", "w", "W", "b", "B", "e", "E", "$", "0", "^", "g_", "gg", "G", "H", "M", "L", "{", "}", "(", ")"}
 
 // MovementResult represents the result of a movement calculation
 type MovementResult struct {
@@ -62,11 +74,49 @@ func CalculateNewPosition(direction string, currentRow, currentCol int, gameMap 
 	case "word_end":
 		newRow, newCol = findWordEnd(currentRow, currentCol, textGrid)
 		newPreferredColumn = newCol
+	case "word_end_space":
+		newRow, newCol = findWordEndSpace(currentRow, currentCol, textGrid)
+		newPreferredColumn = newCol
 	case "line_end":
 		newCol = len(gameMap[currentRow]) - 1
 		newPreferredColumn = newCol
 	case "line_start":
 		newCol = 0
+		newPreferredColumn = newCol
+	case "line_first_non_blank":
+		newCol = findFirstNonBlank(currentRow, textGrid)
+		newPreferredColumn = newCol
+	case "line_last_non_blank":
+		newCol = findLastNonBlank(currentRow, textGrid)
+		newPreferredColumn = newCol
+	case "file_start":
+		newRow = 0
+		newCol = 0
+		newPreferredColumn = newCol
+	case "file_end":
+		newRow = len(gameMap) - 1
+		newCol = 0
+		newPreferredColumn = newCol
+	case "screen_top":
+		newRow = 0
+		newCol = clampToRow(preferredColumn, newRow, gameMap)
+	case "screen_middle":
+		newRow = len(gameMap) / 2
+		newCol = clampToRow(preferredColumn, newRow, gameMap)
+	case "screen_bottom":
+		newRow = len(gameMap) - 1
+		newCol = clampToRow(preferredColumn, newRow, gameMap)
+	case "paragraph_prev":
+		newRow, newCol = findParagraphPrev(currentRow, currentCol, textGrid)
+		newPreferredColumn = newCol
+	case "paragraph_next":
+		newRow, newCol = findParagraphNext(currentRow, currentCol, textGrid)
+		newPreferredColumn = newCol
+	case "sentence_prev":
+		newRow, newCol = findSentencePrev(currentRow, currentCol, textGrid)
+		newPreferredColumn = newCol
+	case "sentence_next":
+		newRow, newCol = findSentenceNext(currentRow, currentCol, textGrid)
 		newPreferredColumn = newCol
 	default:
 		return nil, fmt.Errorf("unknown direction: %s", direction)
@@ -85,17 +135,29 @@ func CalculateNewPosition(direction string, currentRow, currentCol int, gameMap 
 // isValidDirection checks if the direction is valid
 func isValidDirection(direction string) bool {
 	validDirections := map[string]bool{
-		"left":               true,
-		"right":              true,
-		"up":                 true,
-		"down":               true,
-		"word_forward":       true,
-		"word_forward_space": true,
-		"word_backward":      true,
-		"word_backward_space": true,
-		"word_end":           true,
-		"line_end":           true,
-		"line_start":         true,
+		"left":                   true,
+		"right":                  true,
+		"up":                     true,
+		"down":                   true,
+		"word_forward":           true,
+		"word_forward_space":     true,
+		"word_backward":          true,
+		"word_backward_space":    true,
+		"word_end":               true,
+		"word_end_space":         true,
+		"line_end":               true,
+		"line_start":             true,
+		"line_first_non_blank":   true,
+		"line_last_non_blank":    true,
+		"file_start":             true,
+		"file_end":               true,
+		"screen_top":             true,
+		"screen_middle":          true,
+		"screen_bottom":          true,
+		"paragraph_prev":         true,
+		"paragraph_next":         true,
+		"sentence_prev":          true,
+		"sentence_next":          true,
 	}
 	return validDirections[direction]
 }

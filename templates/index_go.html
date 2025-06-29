@@ -2,13 +2,13 @@
 <div id="userPanel" class="user-panel hidden">
   <div class="user-info">
     <span id="welcomeMessage">Welcome, <span id="loggedUsername"></span>!</span>
-    <button id="logoutButton" class="btn logout-btn">🚪 Logout</button>
+    <button id="logoutButton" class="btn logout-btn">Logout</button>
   </div>
 </div>
 
 <div id="authButtons" class="auth-buttons">
-  <button id="loginButton" class="btn secondary">🔑 Login</button>
-  <button id="registerButton" class="btn primary">📝 Register</button>
+  <button id="loginButton" class="btn secondary">Login</button>
+  <button id="registerButton" class="btn primary">Register</button>
 </div>
 
 <div class="home-banner">
@@ -22,7 +22,7 @@
 <p class="welcome-text">Welcome to boba.vim !</p>
 
 <div class="menu-buttons">
-  <button id="playButton" class="btn">🧋 Play</button>
+  <button id="playButton" class="btn">Play</button>
 
   <div class="character-selection">
     <div class="character-grid">
@@ -75,30 +75,50 @@
     </div>
   </div>
 
-  <button id="playOnline" class="btn">🧋 Play online</button>
+  <button id="playOnline" class="btn">Play online</button>
   <button id="leaderboardButton" class="btn secondary">🏆 Leaderboard</button>
 </div>
 
 <div id="authModal" class="registration-modal hidden">
   <div class="modal-content">
     <h4 id="modalTitle">🔒 Register to Unlock Premium Characters</h4>
-    
+
     <!-- Registration Form -->
     <form id="registrationForm" class="auth-form">
       <div class="form-group">
-        <input type="text" id="reg-username" name="username" placeholder="Username" required>
+        <input
+          type="text"
+          id="reg-username"
+          name="username"
+          placeholder="Username"
+          required
+        />
       </div>
       <div class="form-group">
-        <input type="email" id="reg-email" name="email" placeholder="Email" required>
+        <input
+          type="email"
+          id="reg-email"
+          name="email"
+          placeholder="Email"
+          required
+        />
       </div>
       <div class="form-group">
-        <input type="password" id="reg-password" name="password" placeholder="Password (min 8 chars)" required>
+        <input
+          type="password"
+          id="reg-password"
+          name="password"
+          placeholder="Password (min 8 chars)"
+          required
+        />
       </div>
       <div class="modal-buttons">
-        <button type="submit" class="modal-btn primary">
-          🧋 Register
-        </button>
-        <button type="button" class="modal-btn secondary" onclick="closeAuthModal()">
+        <button type="submit" class="modal-btn primary">Register</button>
+        <button
+          type="button"
+          class="modal-btn secondary"
+          onclick="closeAuthModal()"
+        >
           Cancel
         </button>
       </div>
@@ -106,28 +126,43 @@
         Already have an account? <a href="#" id="switchToLogin">Login here</a>
       </p>
     </form>
-    
+
     <!-- Login Form -->
     <form id="loginForm" class="auth-form hidden">
       <div class="form-group">
-        <input type="text" id="login-username" name="username" placeholder="Username or Email" required>
+        <input
+          type="text"
+          id="login-username"
+          name="username"
+          placeholder="Username or Email"
+          required
+        />
       </div>
       <div class="form-group">
-        <input type="password" id="login-password" name="password" placeholder="Password" required>
+        <input
+          type="password"
+          id="login-password"
+          name="password"
+          placeholder="Password"
+          required
+        />
       </div>
       <div class="modal-buttons">
-        <button type="submit" class="modal-btn primary">
-          🔑 Login
-        </button>
-        <button type="button" class="modal-btn secondary" onclick="closeAuthModal()">
+        <button type="submit" class="modal-btn primary">🔑 Login</button>
+        <button
+          type="button"
+          class="modal-btn secondary"
+          onclick="closeAuthModal()"
+        >
           Cancel
         </button>
       </div>
       <p class="auth-switch">
-        Don't have an account? <a href="#" id="switchToRegister">Register here</a>
+        Don't have an account?
+        <a href="#" id="switchToRegister">Register here</a>
       </p>
     </form>
-    
+
     <div id="authError" class="error-message hidden"></div>
   </div>
 </div>
