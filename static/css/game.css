@@ -164,7 +164,13 @@
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: linear-gradient(180deg, #87CEEB 0%, #4682B4 30%, #6495ED 70%, #B0C4DE 100%);
+  background: linear-gradient(
+    180deg,
+    #87ceeb 0%,
+    #4682b4 30%,
+    #6495ed 70%,
+    #b0c4de 100%
+  );
 }
 
 .game-container {
@@ -305,9 +311,9 @@
 }
 
 #backMenu {
-  background: linear-gradient(145deg, #CD853F, #B8860B) !important;
-  border: 3px solid #8B7355 !important;
-  color: #2F4F4F !important;
+  background: linear-gradient(145deg, #cd853f, #b8860b) !important;
+  border: 3px solid #8b7355 !important;
+  color: #2f4f4f !important;
   font-size: 1rem !important;
   font-family: "Monaco", "Courier New", monospace !important;
   font-weight: bold !important;
@@ -315,7 +321,7 @@
   border-radius: 12px !important;
   cursor: pointer !important;
   transition: all 0.15s ease !important;
-  box-shadow: 
+  box-shadow:
     0 4px 0 #704214,
     0 6px 12px rgba(0, 0, 0, 0.3),
     inset 0 2px 0 rgba(255, 255, 255, 0.3) !important;
@@ -341,22 +347,21 @@
 }
 
 #backMenu:hover {
-  background: linear-gradient(145deg, #DAA520, #CD853F) !important;
+  background: linear-gradient(145deg, #daa520, #cd853f) !important;
   transform: translateY(-1px) !important;
-  box-shadow: 
+  box-shadow:
     0 5px 0 #704214,
     0 7px 14px rgba(0, 0, 0, 0.35),
     inset 0 2px 0 rgba(255, 255, 255, 0.35) !important;
 }
 
 #backMenu:hover:before {
-  content: "🧋";
   transform: translateY(-50%);
 }
 
 #backMenu:active {
   transform: translateY(2px) !important;
-  box-shadow: 
+  box-shadow:
     0 2px 0 #704214,
     0 3px 6px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;

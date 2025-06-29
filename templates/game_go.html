@@ -10,7 +10,7 @@
   <body class="game-page">
     <!-- Animated clouds background -->
     <div class="clouds-container" id="clouds-background"></div>
-    
+
     <div class="game-container">
       <div class="game-header">
         <h1 class="game-title">
@@ -24,13 +24,14 @@
 
         <div class="header-center">
           <div class="header-info">
-            Welcome! Use HJKL to move | Press - to show map | Press + to
-            activate tutorial
+            Lost ? Press + to show tutorial | Press - to show map
           </div>
         </div>
 
         <div class="header-right">
-          <div class="score-display">Score: <strong id="score">{{.score}}</strong></div>
+          <div class="score-display">
+            Score: <strong id="score">{{.score}}</strong>
+          </div>
           <button id="backMenu" class="btn">Menu</button>
         </div>
       </div>
@@ -39,8 +40,8 @@
         <div class="keyboard-map">
           {{range $rowIndex, $row := .text_grid}}
           <div class="keyboard-row">
-            {{range $colIndex, $letter := $row}}
-            {{$mapValue := index (index $.game_map $rowIndex) $colIndex}}
+            {{range $colIndex, $letter := $row}} {{$mapValue := index (index
+            $.game_map $rowIndex) $colIndex}}
             <div
               class="key"
               data-letter="{{$letter}}"
@@ -96,10 +97,8 @@
 
     <!-- Cloud animation system -->
     <script src="/static/js/cloud.js"></script>
-    
-    <script
-      type="module"
-      src="/static/js/game.js"
-    ></script>
+
+    <script type="module" src="/static/js/game.js"></script>
   </body>
 </html>
+

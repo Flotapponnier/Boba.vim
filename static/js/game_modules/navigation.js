@@ -6,7 +6,6 @@ export function initializeBackToMenuButton() {
 
   menuButton.addEventListener("click", function () {
     menuButton.disabled = true;
-    menuButton.textContent = "Going back to menu ...";
     try {
       window.location.href = "/";
     } catch (error) {
@@ -15,5 +14,13 @@ export function initializeBackToMenuButton() {
       menuButton.disabled = false;
       menuButton.textContent = "← Menu";
     }
+  });
+
+  menuButton.addEventListener("mouseenter", function () {
+    menuButton.textContent = "🧋";
+  });
+
+  menuButton.addEventListener("mouseleave", function () {
+    menuButton.textContent = "Menu";
   });
 }
