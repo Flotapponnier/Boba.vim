@@ -7,14 +7,85 @@
   />
 </div>
 
-<p class="welcome-text">
-  Welcome to Boba.vim. Come compete your vim motions skills !
-</p>
+<p class="welcome-text">Welcome to boba.vim !</p>
 
 <div class="menu-buttons">
   <button id="playButton" class="btn">🧋 Play</button>
+
+  <div class="character-selection">
+    <div class="character-grid">
+      <div
+        class="character-box selected unlocked"
+        data-character="boba"
+        title="Classic Boba"
+      >
+        <img
+          src="/static/sprites/boba.png"
+          alt="Boba"
+          class="character-sprite"
+        />
+      </div>
+      <div
+        class="character-box unlocked"
+        data-character="pinky"
+        title="Pinky Boba"
+      >
+        <img
+          src="/static/sprites/pinky_boba.png"
+          alt="Pinky Boba"
+          class="character-sprite"
+        />
+      </div>
+      <div
+        class="character-box locked"
+        data-character="golden"
+        title="Golden Boba - Register to unlock"
+      >
+        <img
+          src="/static/sprites/golden_boba.png"
+          alt="Golden Boba"
+          class="character-sprite"
+        />
+        <span class="lock-icon">🔒</span>
+      </div>
+      <div
+        class="character-box locked"
+        data-character="black"
+        title="Black Boba - Register to unlock"
+      >
+        <img
+          src="/static/sprites/black_boba.png"
+          alt="Black Boba"
+          class="character-sprite"
+        />
+        <span class="lock-icon">🔒</span>
+      </div>
+    </div>
+  </div>
+
   <button id="playOnline" class="btn">🧋 Play online</button>
   <button id="leaderboardButton" class="btn secondary">🏆 Leaderboard</button>
+</div>
+
+<div id="registrationModal" class="registration-modal hidden">
+  <div class="modal-content">
+    <h4>🔒 Premium Character</h4>
+    <p>
+      This character is only available for registered users. Sign up to unlock
+      all characters and features!
+    </p>
+    <div class="modal-buttons">
+      <button
+        class="modal-btn primary"
+        onclick="alert('Registration feature coming soon!')"
+      >
+        Register
+      </button>
+      <button class="modal-btn secondary" onclick="closeRegistrationModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
 </div>
 {{end}} {{define "css"}}
 <link rel="stylesheet" href="/static/css/index.css" />
