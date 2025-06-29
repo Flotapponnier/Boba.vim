@@ -332,7 +332,6 @@ function displayLeaderboard(leaderboard) {
     <tr style="border-bottom: 1px solid #34495e;">
       <td style="padding: 0.5rem; text-align: center;">${entry.rank}</td>
       <td style="padding: 0.5rem;">${entry.username}</td>
-      <td style="padding: 0.5rem; text-align: center;">${entry.score}</td>
       <td style="padding: 0.5rem; text-align: center;">${entry.completion_time ? formatTime(entry.completion_time) : "--:--"}</td>
     </tr>
   `,

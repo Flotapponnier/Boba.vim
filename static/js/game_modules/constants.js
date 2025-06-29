@@ -2,22 +2,53 @@
 // MOVEMENT CONFIGURATION
 // ================================
 export const MOVEMENT_KEYS = {
-  // Basic vim movements
+  // Character & line movement
   h: { direction: "h", description: "LEFT ←" },
   j: { direction: "j", description: "DOWN ↓" },
   k: { direction: "k", description: "UP ↑" },
   l: { direction: "l", description: "RIGHT →" },
 
-  // Word movements
+  // Word motions
   w: { direction: "w", description: "WORD FORWARD →" },
   W: { direction: "W", description: "WORD FORWARD (space-separated) →" },
   b: { direction: "b", description: "WORD BACK ←" },
   B: { direction: "B", description: "WORD BACK (space-separated) ←" },
   e: { direction: "e", description: "END WORD →" },
+  E: { direction: "E", description: "END WORD (space-separated) →" },
 
-  // Line movements
+  // Line motions
   0: { direction: "0", description: "LINE START ←" },
   $: { direction: "$", description: "LINE END →" },
+  "^": { direction: "^", description: "FIRST NON-BLANK CHAR ←" },
+  g_: { direction: "g_", description: "LAST NON-BLANK CHAR →" },
+
+  // Screen positions
+  H: { direction: "H", description: "TOP OF SCREEN" },
+  M: { direction: "M", description: "MIDDLE OF SCREEN" },
+  L: { direction: "L", description: "BOTTOM OF SCREEN" },
+
+  // Paragraphs
+  "{": { direction: "{", description: "PREV PARAGRAPH ←" },
+  "}": { direction: "}", description: "NEXT PARAGRAPH →" },
+
+  // Sentences
+  "(": { direction: "(", description: "PREV SENTENCE ←" },
+  ")": { direction: ")", description: "NEXT SENTENCE →" },
+
+  // File
+  gg: { direction: "gg", description: "TOP OF FILE" },
+  G: { direction: "G", description: "BOTTOM OF FILE" },
+
+  // Character search (line local)
+  f: { direction: "f<char>", description: "FIND CHAR →" },
+  F: { direction: "F<char>", description: "FIND CHAR ←" },
+  t: { direction: "t<char>", description: "TILL CHAR →" },
+  T: { direction: "T<char>", description: "TILL CHAR ←" },
+  ";": { direction: ";", description: "REPEAT SEARCH" },
+  ",": { direction: ",", description: "REVERSE REPEAT SEARCH" },
+
+  // Match
+  "%": { direction: "%", description: "MATCHING BRACKET" },
 };
 
 // Generate movement messages dynamically
@@ -65,7 +96,7 @@ export const TUTORIAL_CONFIG = {
 // Generate tutorial commands from movement configuration
 export const TUTORIAL_COMMANDS = VALID_MOVEMENT_KEYS.map((key) => ({
   key: key,
-  message: `Press ${key.toUpperCase()} to go ${MOVEMENT_KEYS[key].description}`,
+  message: `Press ${key} to go ${MOVEMENT_KEYS[key].description}`,
 }));
 
 // ================================

@@ -57,7 +57,6 @@ function showLeaderboardModal(leaderboard) {
     <tr style="border-bottom: 1px solid #34495e;">
       <td style="padding: 0.5rem; text-align: center; font-weight: bold;">${entry.rank}</td>
       <td style="padding: 0.5rem;">${entry.username}</td>
-      <td style="padding: 0.5rem; text-align: center;">${entry.score || 0}</td>
       <td style="padding: 0.5rem; text-align: center;">${entry.completion_time ? formatTime(entry.completion_time) : "--:--"}</td>
     </tr>
   `,
