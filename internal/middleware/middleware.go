@@ -76,11 +76,11 @@ func RateLimit() gin.HandlerFunc {
 	// Simple in-memory rate limiter
 	// In production, use Redis or similar
 	clients := make(map[string][]time.Time)
-	
+
 	return gin.HandlerFunc(func(c *gin.Context) {
 		clientIP := c.ClientIP()
 		now := time.Now()
-		
+
 		// Clean old entries (older than 1 minute)
 		if times, exists := clients[clientIP]; exists {
 			var validTimes []time.Time
@@ -91,7 +91,7 @@ func RateLimit() gin.HandlerFunc {
 			}
 			clients[clientIP] = validTimes
 		}
-		
+
 		// Check rate limit (max 60 requests per minute)
 		if len(clients[clientIP]) >= 60 {
 			c.JSON(429, gin.H{
@@ -101,10 +101,10 @@ func RateLimit() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		
+
 		// Add current request
 		clients[clientIP] = append(clients[clientIP], now)
-		
+
 		c.Next()
 	})
 }

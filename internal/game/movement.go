@@ -42,11 +42,9 @@ func CalculateNewPosition(direction string, currentRow, currentCol int, gameMap 
 		newPreferredColumn = newCol
 	case "up":
 		newRow = currentRow - 1
-		// Try to maintain preferred column, but clamp to valid range
 		newCol = clampToRow(preferredColumn, newRow, gameMap)
 	case "down":
 		newRow = currentRow + 1
-		// Try to maintain preferred column, but clamp to valid range
 		newCol = clampToRow(preferredColumn, newRow, gameMap)
 	default:
 		return nil, fmt.Errorf("unknown direction: %s", direction)

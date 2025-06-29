@@ -54,7 +54,7 @@ async function setUsername(username) {
       },
       body: JSON.stringify({ username: username }),
     });
-    
+
     const result = await response.json();
     if (!result.success) {
       throw new Error(result.error);
@@ -68,14 +68,14 @@ async function setUsername(username) {
 
 function initializeLeaderboardButton() {
   const leaderboardButton = document.getElementById("leaderboardButton");
-  
+
   if (!leaderboardButton) return;
-  
+
   leaderboardButton.addEventListener("click", async function () {
     try {
       const response = await fetch("/api/leaderboard");
       const result = await response.json();
-      
+
       if (result.success) {
         showLeaderboardModal(result.leaderboard);
       } else {
@@ -94,15 +94,19 @@ function showLeaderboardModal(leaderboard) {
     return;
   }
 
-  const leaderboardHTML = leaderboard.map(entry => `
+  const leaderboardHTML = leaderboard
+    .map(
+      (entry) => `
     <tr style="border-bottom: 1px solid #34495e;">
       <td style="padding: 0.5rem; text-align: center; font-weight: bold;">${entry.rank}</td>
       <td style="padding: 0.5rem;">${entry.username}</td>
       <td style="padding: 0.5rem; text-align: center;">${entry.score}</td>
-      <td style="padding: 0.5rem; text-align: center;">${entry.completion_time ? formatTime(entry.completion_time) : '--:--'}</td>
+      <td style="padding: 0.5rem; text-align: center;">${entry.completion_time ? formatTime(entry.completion_time) : "--:--"}</td>
     </tr>
-  `).join('');
-  
+  `,
+    )
+    .join("");
+
   const modalHTML = `
     <div id="leaderboardModal" style="
       position: fixed;
@@ -154,47 +158,22 @@ function showLeaderboardModal(leaderboard) {
       </div>
     </div>
   `;
-  
-  document.body.insertAdjacentHTML('beforeend', modalHTML);
-  
-  document.getElementById('closeLeaderboard').addEventListener('click', () => {
-    document.getElementById('leaderboardModal').remove();
+
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  document.getElementById("closeLeaderboard").addEventListener("click", () => {
+    document.getElementById("leaderboardModal").remove();
   });
 }
 
 function formatTime(seconds) {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 
 function initializeUsernameInput() {
   // Add any username input initialization logic here if needed
-}
-
-function initializeTutorialButton() {
-  const playTutorialButton = document.getElementById("tutorialplayButton");
-
-  if (!playTutorialButton) return;
-
-  playTutorialButton.addEventListener("click", async function () {
-    playTutorialButton.disabled = true;
-    playTutorialButton.textContent = "To be implemented..";
-
-    try {
-      const response = await fetch("/api/playtutorial");
-      const data = await response.json();
-
-      console.log("Game response: ", data);
-      alert(data.message);
-    } catch (error) {
-      console.error("Error starting game:", error);
-      alert("Failed to start game. Please try again.");
-    } finally {
-      playTutorialButton.disabled = false;
-      playTutorialButton.textContent = "🧋 Play with tutorial";
-    }
-  });
 }
 
 function initializeOnlineButton() {

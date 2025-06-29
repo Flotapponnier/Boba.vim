@@ -1,24 +1,18 @@
-{{define "base_go.html"}}
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{.title}}</title>
-
     <!-- Global CSS -->
     <link rel="stylesheet" href="/static/css/global.css" />
-
-    <!-- Page-specific CSS -->
-    {{block "css" .}}{{end}}
   </head>
   <body>
-    <div class="container {{block "container_class" .}}{{end}}">
-      {{block "content" .}}{{end}}
+    <div class="container">
+      <h1>🧋 Something went wrong!</h1>
+      <p>Our boba machine is having issues. Please try again later.</p>
+      <p>{{.error}}</p>
+      <button onclick="window.location.href='/'" class="btn">🏠 Go Home</button>
     </div>
-
-    <!-- Page-specific JavaScript -->
-    {{block "scripts" .}}{{end}}
   </body>
 </html>
-{{end}}

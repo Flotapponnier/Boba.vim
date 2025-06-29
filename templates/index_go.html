@@ -1,4 +1,4 @@
-{{define "content"}}
+{{template "base_go.html" .}} {{define "content"}}
 <div class="home-banner">
   <img
     src="/static/sprites/boba_vim_banneer.png"
@@ -8,23 +8,16 @@
 </div>
 
 <p class="welcome-text">
-  Welcome to the ultimate vim-inspired boba experience!
+  Welcome to Boba.vim. Come compete your vim motions skills !
 </p>
 
 <div class="menu-buttons">
   <button id="playButton" class="btn">🧋 Play</button>
-  <button id="tutorialplayButton" class="btn">🧋 Play with tutorial</button>
   <button id="playOnline" class="btn">🧋 Play online</button>
   <button id="leaderboardButton" class="btn secondary">🏆 Leaderboard</button>
 </div>
-{{end}}
-
-{{define "css"}}
+{{end}} {{define "css"}}
 <link rel="stylesheet" href="/static/css/index.css" />
-{{end}}
-
-{{define "scripts"}}
+{{end}} {{define "scripts"}}
 <script src="/static/js/index.js"></script>
 {{end}}
-
-{{template "base_go.html" .}}
