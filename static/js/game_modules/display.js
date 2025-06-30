@@ -12,19 +12,16 @@ export function updateGameDisplay(gameMap) {
 
       const keyTop = key.querySelector(".key-top");
       
-      // More thorough cleanup - remove all game elements
       const existingElements = keyTop.querySelectorAll(".boba-character, .pearl");
       existingElements.forEach(element => {
         element.remove();
       });
 
-      // Force DOM to flush the removal before adding new elements
       requestAnimationFrame(() => {
         if (newMapValue === 1) {
           const bobaDiv = document.createElement("div");
           bobaDiv.className = "boba-character";
           
-          // Get the correct sprite based on selected character
           const character = window.selectedCharacter || "boba";
           const spriteUrl = character === "boba" 
             ? "/static/sprites/boba.png" 
@@ -49,6 +46,10 @@ export function updateGameDisplay(gameMap) {
   });
 
   updateDebugDisplay(gameMap);
+  
+  if (window.responsiveScaling && window.responsiveScaling.updateScalingAfterMapChange) {
+    window.responsiveScaling.updateScalingAfterMapChange();
+  }
 }
 
 export function updateDebugDisplay(gameMap) {

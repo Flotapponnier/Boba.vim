@@ -379,11 +379,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   min-height: 0;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
   position: relative;
   z-index: 50;
 }
@@ -399,6 +396,9 @@
   align-items: flex-start;
   max-width: 100%;
   padding: 1rem 0;
+  transform-origin: center center;
+  transition: transform 0.3s ease;
+  margin: 0 auto;
 }
 
 .keyboard-row {
@@ -413,6 +413,8 @@
   height: 50px;
   perspective: 100px;
   flex-shrink: 0;
+  min-width: 50px;
+  min-height: 50px;
 }
 
 .key-top {
