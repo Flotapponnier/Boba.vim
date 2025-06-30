@@ -5,23 +5,22 @@ export function initializeMovement() {
   // Character search state
   let waitingForChar = false;
   let charSearchMotion = null;
+  
+  // G-command state
+  let waitingForGCommand = false;
 
   document.addEventListener("keydown", function (event) {
     const key = event.key;
 
-    // Handle character input when waiting for character
     if (waitingForChar) {
-      if (key.length === 1) { // Single character key
+      if (key.length === 1) {
         const fullDirection = getCharSearchDirection(charSearchMotion, key);
         
-        // Reset state
         waitingForChar = false;
         charSearchMotion = null;
         
-        // Clear waiting feedback
         clearCharWaitingFeedback();
         
-        // Execute the character search movement
         if (window.gameState.tutorialMode) {
           window.tutorialModule.handleTutorialMovement(fullDirection);
         } else {
@@ -31,11 +30,50 @@ export function initializeMovement() {
         movePlayer(fullDirection);
         event.preventDefault();
       } else if (key === 'Escape') {
-        // Cancel character search
         waitingForChar = false;
         charSearchMotion = null;
         clearCharWaitingFeedback();
         event.preventDefault();
+      }
+      return;
+    }
+
+    if (waitingForGCommand) {
+      if (['Shift', 'Control', 'Alt', 'Meta'].includes(key)) {
+        return;
+      }
+      
+      if (key === 'g') {
+        waitingForGCommand = false;
+        clearGCommandFeedback();
+        
+        if (window.gameState.tutorialMode) {
+          window.tutorialModule.handleTutorialMovement('gg');
+        } else {
+          window.feedbackModule.showMovementFeedback('gg');
+        }
+        
+        movePlayer('gg');
+        event.preventDefault();
+      } else if (key === '_') {
+        waitingForGCommand = false;
+        clearGCommandFeedback();
+        
+        if (window.gameState.tutorialMode) {
+          window.tutorialModule.handleTutorialMovement('g_');
+        } else {
+          window.feedbackModule.showMovementFeedback('g_');
+        }
+        
+        movePlayer('g_');
+        event.preventDefault();
+      } else if (key === 'Escape') {
+        waitingForGCommand = false;
+        clearGCommandFeedback();
+        event.preventDefault();
+      } else {
+        waitingForGCommand = false;
+        clearGCommandFeedback();
       }
       return;
     }
@@ -49,11 +87,17 @@ export function initializeMovement() {
       lastKeyPressed = key;
       keyReleased = false;
 
-      // Check if this is a character search motion (f, F, t, T)
       if (['f', 'F', 't', 'T'].includes(key)) {
         waitingForChar = true;
         charSearchMotion = key;
         showCharWaitingFeedback(key);
+        event.preventDefault();
+        return;
+      }
+
+      if (key === 'g') {
+        waitingForGCommand = true;
+        showGCommandFeedback();
         event.preventDefault();
         return;
       }
@@ -489,6 +533,24 @@ function showCharWaitingFeedback(motion) {
 }
 
 function clearCharWaitingFeedback() {
+  const headerInfo = document.querySelector(window.UI_SELECTORS.HEADER_INFO);
+  if (headerInfo && headerInfo.dataset.originalContent) {
+    headerInfo.innerHTML = headerInfo.dataset.originalContent;
+  }
+}
+
+function showGCommandFeedback() {
+  const headerInfo = document.querySelector(window.UI_SELECTORS.HEADER_INFO);
+  if (!headerInfo) return;
+
+  if (!headerInfo.dataset.originalContent) {
+    headerInfo.dataset.originalContent = headerInfo.innerHTML;
+  }
+
+  headerInfo.innerHTML = `<strong style="color: #f39c12; animation: pulse 1s ease-in-out infinite;">G-COMMAND (press g for top, _ for last non-blank)</strong>`;
+}
+
+function clearGCommandFeedback() {
   const headerInfo = document.querySelector(window.UI_SELECTORS.HEADER_INFO);
   if (headerInfo && headerInfo.dataset.originalContent) {
     headerInfo.innerHTML = headerInfo.dataset.originalContent;

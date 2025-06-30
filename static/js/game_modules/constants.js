@@ -36,8 +36,9 @@ export const MOVEMENT_KEYS = {
   ")": { direction: ")", description: "NEXT SENTENCE →" },
 
   // File
+  g: { direction: "g", description: "G-COMMAND (g for top, _ for last non-blank)" },
   gg: { direction: "gg", description: "TOP OF FILE" },
-  G: { direction: "G", description: "BOTTOM OF FILE" },
+  G: { direction: "G", description: "END OF FILE" },
 
   // Character search (line local)
   f: { direction: "f<char>", description: "FIND CHAR →" },

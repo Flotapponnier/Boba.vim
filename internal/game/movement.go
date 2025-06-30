@@ -99,7 +99,7 @@ func CalculateNewPosition(direction string, currentRow, currentCol int, gameMap 
 		newPreferredColumn = newCol
 	case "file_end":
 		newRow = len(gameMap) - 1
-		newCol = 0
+		newCol = len(gameMap[newRow]) - 1
 		newPreferredColumn = newCol
 	case "screen_top":
 		newRow = 0
@@ -589,12 +589,13 @@ func findFirstNonBlank(row int, textGrid [][]string) int {
 	
 	// Find first non-blank character in the row
 	for col := 0; col < len(textGrid[row]); col++ {
-		if !isSpace(textGrid[row][col]) {
+		char := textGrid[row][col]
+		if !isSpace(char) && char != "" {
 			return col
 		}
 	}
 	
-	// If entire row is blank, return 0
+	// If entire row is blank or empty, return 0 (beginning of line)
 	return 0
 }
 
@@ -603,14 +604,20 @@ func findLastNonBlank(row int, textGrid [][]string) int {
 		return 0
 	}
 	
+	// Handle empty row
+	if len(textGrid[row]) == 0 {
+		return 0
+	}
+	
 	// Find last non-blank character in the row
 	for col := len(textGrid[row]) - 1; col >= 0; col-- {
-		if !isSpace(textGrid[row][col]) {
+		char := textGrid[row][col]
+		if !isSpace(char) && char != "" {
 			return col
 		}
 	}
 	
-	// If entire row is blank, return 0
+	// If entire row is blank or empty, return 0 (beginning of line)
 	return 0
 }
 
