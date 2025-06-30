@@ -153,20 +153,33 @@ func (gs *GameService) ProcessMove(sessionToken, direction string) (map[string]i
 		}, nil
 	}
 
-	// Convert direction key to direction name
-	directionName, exists := game.MovementKeys[direction]
-	if !exists {
-		return map[string]interface{}{
-			"success": false,
-			"error":   "Invalid movement key",
-		}, nil
+	// Handle character search directions or convert direction key to direction name
+	var finalDirection string
+	
+	// Check if this is a character search direction
+	if (len(direction) > 17 && direction[:17] == "find_char_forward") ||
+	   (len(direction) > 18 && direction[:18] == "find_char_backward") ||
+	   (len(direction) > 17 && direction[:17] == "till_char_forward") ||
+	   (len(direction) > 18 && direction[:18] == "till_char_backward") {
+		// For character search, use the direction string directly
+		finalDirection = direction
+	} else {
+		// For normal movement, look up in MovementKeys map
+		directionName, exists := game.MovementKeys[direction]
+		if !exists {
+			return map[string]interface{}{
+				"success": false,
+				"error":   "Invalid movement key",
+			}, nil
+		}
+		finalDirection = directionName["direction"].(string)
 	}
 
 	// Calculate new position
 	gameMap := gameSession.GetGameMap()
 	textGrid := gameSession.GetTextGrid()
 	movementResult, err := game.CalculateNewPosition(
-		directionName["direction"].(string),
+		finalDirection,
 		gameSession.CurrentRow,
 		gameSession.CurrentCol,
 		gameMap,

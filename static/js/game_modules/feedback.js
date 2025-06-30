@@ -26,6 +26,24 @@ function storeOriginalHeaderContent(headerInfo) {
 }
 
 function createFallbackMessage(key) {
+  // Handle character search motions with embedded character
+  if (key.startsWith('find_char_forward_')) {
+    const char = key.slice(18);
+    return `FIND CHAR '${char}' →`;
+  }
+  if (key.startsWith('find_char_backward_')) {
+    const char = key.slice(19);
+    return `FIND CHAR '${char}' ←`;
+  }
+  if (key.startsWith('till_char_forward_')) {
+    const char = key.slice(18);
+    return `TILL CHAR '${char}' →`;
+  }
+  if (key.startsWith('till_char_backward_')) {
+    const char = key.slice(19);
+    return `TILL CHAR '${char}' ←`;
+  }
+  
   return `You pressed ${key.toUpperCase()}`;
 }
 

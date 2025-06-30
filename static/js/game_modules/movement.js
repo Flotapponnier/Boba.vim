@@ -1,9 +1,44 @@
 export function initializeMovement() {
   let lastKeyPressed = null;
   let keyReleased = true;
+  
+  // Character search state
+  let waitingForChar = false;
+  let charSearchMotion = null;
 
   document.addEventListener("keydown", function (event) {
     const key = event.key;
+
+    // Handle character input when waiting for character
+    if (waitingForChar) {
+      if (key.length === 1) { // Single character key
+        const fullDirection = getCharSearchDirection(charSearchMotion, key);
+        
+        // Reset state
+        waitingForChar = false;
+        charSearchMotion = null;
+        
+        // Clear waiting feedback
+        clearCharWaitingFeedback();
+        
+        // Execute the character search movement
+        if (window.gameState.tutorialMode) {
+          window.tutorialModule.handleTutorialMovement(fullDirection);
+        } else {
+          window.feedbackModule.showMovementFeedback(fullDirection);
+        }
+        
+        movePlayer(fullDirection);
+        event.preventDefault();
+      } else if (key === 'Escape') {
+        // Cancel character search
+        waitingForChar = false;
+        charSearchMotion = null;
+        clearCharWaitingFeedback();
+        event.preventDefault();
+      }
+      return;
+    }
 
     if (window.VALID_MOVEMENT_KEYS.includes(key)) {
       if (event.repeat || (lastKeyPressed === key && !keyReleased)) {
@@ -13,6 +48,15 @@ export function initializeMovement() {
 
       lastKeyPressed = key;
       keyReleased = false;
+
+      // Check if this is a character search motion (f, F, t, T)
+      if (['f', 'F', 't', 'T'].includes(key)) {
+        waitingForChar = true;
+        charSearchMotion = key;
+        showCharWaitingFeedback(key);
+        event.preventDefault();
+        return;
+      }
 
       if (window.gameState.tutorialMode) {
         window.tutorialModule.handleTutorialMovement(key);
@@ -127,9 +171,27 @@ function showPearlCollectionFeedback(direction) {
 function handleBlockedMove(result, direction) {
   console.log("Move blocked:", result.error);
 
-  const message =
-    window.BLOCKED_MESSAGES[direction] ||
-    `You pressed ${direction.toUpperCase()} - BLOCKED!`;
+  let message = window.BLOCKED_MESSAGES[direction];
+  
+  if (!message) {
+    // Handle character search motions with custom blocked messages
+    if (direction.startsWith('find_char_forward_')) {
+      const char = direction.slice(18);
+      message = `FIND CHAR '${char}' → - BLOCKED! (character not found)`;
+    } else if (direction.startsWith('find_char_backward_')) {
+      const char = direction.slice(19);
+      message = `FIND CHAR '${char}' ← - BLOCKED! (character not found)`;
+    } else if (direction.startsWith('till_char_forward_')) {
+      const char = direction.slice(18);
+      message = `TILL CHAR '${char}' → - BLOCKED! (character not found)`;
+    } else if (direction.startsWith('till_char_backward_')) {
+      const char = direction.slice(19);
+      message = `TILL CHAR '${char}' ← - BLOCKED! (character not found)`;
+    } else {
+      message = `You pressed ${direction.toUpperCase()} - BLOCKED!`;
+    }
+  }
+  
   window.chatModule.addToChatHistory(message);
 
   if (!window.gameState.tutorialMode) {
@@ -394,4 +456,41 @@ function displayLeaderboard(leaderboard) {
   document.getElementById("closeLeaderboard").addEventListener("click", () => {
     document.getElementById("leaderboardModal").remove();
   });
+}
+
+// Character search helper functions
+function getCharSearchDirection(motion, character) {
+  const directionMap = {
+    'f': 'find_char_forward',
+    'F': 'find_char_backward', 
+    't': 'till_char_forward',
+    'T': 'till_char_backward'
+  };
+  
+  return `${directionMap[motion]}_${character}`;
+}
+
+function showCharWaitingFeedback(motion) {
+  const headerInfo = document.querySelector(window.UI_SELECTORS.HEADER_INFO);
+  if (!headerInfo) return;
+
+  if (!headerInfo.dataset.originalContent) {
+    headerInfo.dataset.originalContent = headerInfo.innerHTML;
+  }
+
+  const motionDescriptions = {
+    'f': 'FIND CHAR → (type character)',
+    'F': 'FIND CHAR ← (type character)',
+    't': 'TILL CHAR → (type character)', 
+    'T': 'TILL CHAR ← (type character)'
+  };
+
+  headerInfo.innerHTML = `<strong style="color: #f39c12; animation: pulse 1s ease-in-out infinite;">${motionDescriptions[motion]}</strong>`;
+}
+
+function clearCharWaitingFeedback() {
+  const headerInfo = document.querySelector(window.UI_SELECTORS.HEADER_INFO);
+  if (headerInfo && headerInfo.dataset.originalContent) {
+    headerInfo.innerHTML = headerInfo.dataset.originalContent;
+  }
 }

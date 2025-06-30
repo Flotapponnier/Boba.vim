@@ -131,5 +131,8 @@ func PlaceNewPearl(gameMap [][]int, excludeRow, excludeCol int) {
 
 // IsValidPosition checks if a position is within bounds
 func IsValidPosition(row, col int, gameMap [][]int) bool {
-	return row >= 0 && row < len(gameMap) && col >= 0 && col < len(gameMap[0])
+	if row < 0 || row >= len(gameMap) {
+		return false
+	}
+	return col >= 0 && col < len(gameMap[row])
 }

@@ -67,6 +67,26 @@ export function generateRandomTutorialCommand() {
 export function handleTutorialMovement(key) {
   if (!currentTutorialCommand) return;
 
+  // Handle character search motions - these aren't part of tutorial
+  if (['f', 'F', 't', 'T'].includes(key)) {
+    const skipMessage = `Character search (${key}) not in tutorial - skipping`;
+    showTutorialMessage(skipMessage, window.TUTORIAL_CONFIG.COLORS.INSTRUCTION);
+    window.chatModule.addToChatHistory(skipMessage);
+    
+    setTimeout(() => {
+      showTutorialMessage(
+        currentTutorialCommand.message,
+        window.TUTORIAL_CONFIG.COLORS.INSTRUCTION,
+      );
+    }, 1000);
+    return;
+  }
+
+  // Handle character search direction strings (when they get passed through)
+  if (key.startsWith('find_char_') || key.startsWith('till_char_')) {
+    return; // Ignore these in tutorial mode
+  }
+
   if (key === currentTutorialCommand.key) {
     handleCorrectAnswer();
   } else {

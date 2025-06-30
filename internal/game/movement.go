@@ -30,10 +30,14 @@ var MovementKeys = map[string]map[string]interface{}{
 	"}": {"direction": "paragraph_next", "description": "Go to next paragraph"},
 	"(": {"direction": "sentence_prev", "description": "Go to previous sentence"},
 	")": {"direction": "sentence_next", "description": "Go to next sentence"},
+	"f": {"direction": "find_char_forward", "description": "Find character forward"},
+	"F": {"direction": "find_char_backward", "description": "Find character backward"},
+	"t": {"direction": "till_char_forward", "description": "Till character forward"},
+	"T": {"direction": "till_char_backward", "description": "Till character backward"},
 }
 
 // ValidMovementKeys list of all valid movement keys
-var ValidMovementKeys = []string{"h", "j", "k", "l", "w", "W", "b", "B", "e", "E", "$", "0", "^", "g_", "gg", "G", "H", "M", "L", "{", "}", "(", ")"}
+var ValidMovementKeys = []string{"h", "j", "k", "l", "w", "W", "b", "B", "e", "E", "$", "0", "^", "g_", "gg", "G", "H", "M", "L", "{", "}", "(", ")", "f", "F", "t", "T"}
 
 // MovementResult represents the result of a movement calculation
 type MovementResult struct {
@@ -119,7 +123,46 @@ func CalculateNewPosition(direction string, currentRow, currentCol int, gameMap 
 		newRow, newCol = findSentenceNext(currentRow, currentCol, textGrid)
 		newPreferredColumn = newCol
 	default:
-		return nil, fmt.Errorf("unknown direction: %s", direction)
+		// Check if it's a character search direction with character parameter
+		if len(direction) > 17 && direction[:17] == "find_char_forward" {
+			// Extract character from direction string (format: "find_char_forward_X")
+			if len(direction) == 19 && direction[17] == '_' {
+				targetChar := string(direction[18])
+				newRow, newCol = findCharForward(currentRow, currentCol, textGrid, targetChar)
+				newPreferredColumn = newCol
+			} else {
+				return nil, fmt.Errorf("invalid find_char_forward format: %s", direction)
+			}
+		} else if len(direction) > 18 && direction[:18] == "find_char_backward" {
+			// Extract character from direction string (format: "find_char_backward_X")
+			if len(direction) == 20 && direction[18] == '_' {
+				targetChar := string(direction[19])
+				newRow, newCol = findCharBackward(currentRow, currentCol, textGrid, targetChar)
+				newPreferredColumn = newCol
+			} else {
+				return nil, fmt.Errorf("invalid find_char_backward format: %s", direction)
+			}
+		} else if len(direction) > 17 && direction[:17] == "till_char_forward" {
+			// Extract character from direction string (format: "till_char_forward_X")
+			if len(direction) == 19 && direction[17] == '_' {
+				targetChar := string(direction[18])
+				newRow, newCol = tillCharForward(currentRow, currentCol, textGrid, targetChar)
+				newPreferredColumn = newCol
+			} else {
+				return nil, fmt.Errorf("invalid till_char_forward format: %s", direction)
+			}
+		} else if len(direction) > 18 && direction[:18] == "till_char_backward" {
+			// Extract character from direction string (format: "till_char_backward_X")
+			if len(direction) == 20 && direction[18] == '_' {
+				targetChar := string(direction[19])
+				newRow, newCol = tillCharBackward(currentRow, currentCol, textGrid, targetChar)
+				newPreferredColumn = newCol
+			} else {
+				return nil, fmt.Errorf("invalid till_char_backward format: %s", direction)
+			}
+		} else {
+			return nil, fmt.Errorf("unknown direction: %s", direction)
+		}
 	}
 	
 	isValid := IsValidPosition(newRow, newCol, gameMap)
@@ -158,8 +201,32 @@ func isValidDirection(direction string) bool {
 		"paragraph_next":         true,
 		"sentence_prev":          true,
 		"sentence_next":          true,
+		"find_char_forward":      true,
+		"find_char_backward":     true,
+		"till_char_forward":      true,
+		"till_char_backward":     true,
 	}
-	return validDirections[direction]
+	
+	// Check standard directions first
+	if validDirections[direction] {
+		return true
+	}
+	
+	// Check character search directions with character parameter
+	if len(direction) == 19 && direction[:17] == "find_char_forward" && direction[17] == '_' {
+		return true
+	}
+	if len(direction) == 20 && direction[:18] == "find_char_backward" && direction[18] == '_' {
+		return true
+	}
+	if len(direction) == 19 && direction[:17] == "till_char_forward" && direction[17] == '_' {
+		return true
+	}
+	if len(direction) == 20 && direction[:18] == "till_char_backward" && direction[18] == '_' {
+		return true
+	}
+	
+	return false
 }
 
 // clampToRow clamps the column to valid range for the given row
@@ -443,4 +510,414 @@ func findWordEnd(row, col int, textGrid [][]string) (int, int) {
 	}
 	
 	return currentRow, currentCol
+}
+
+
+func findWordEndSpace(row, col int, textGrid [][]string) (int, int) {
+	if row < 0 || row >= len(textGrid) {
+		return row, col
+	}
+	
+	currentRow := row
+	currentCol := col
+	
+	// If we're at end of WORD, move to next WORD first
+	if currentCol < len(textGrid[currentRow]) {
+		currentChar := textGrid[currentRow][currentCol]
+		if !isSpace(currentChar) {
+			// Skip current WORD (everything until space)
+			for currentRow < len(textGrid) && currentCol < len(textGrid[currentRow]) {
+				curChar := textGrid[currentRow][currentCol]
+				if isSpace(curChar) {
+					break
+				}
+				currentCol++
+			}
+			
+			// Skip whitespace to next WORD
+			for currentRow < len(textGrid) && currentCol < len(textGrid[currentRow]) {
+				curChar := textGrid[currentRow][currentCol]
+				if !isSpace(curChar) {
+					break
+				}
+				currentCol++
+			}
+			
+			// Handle end of line
+			if currentRow < len(textGrid) && currentCol >= len(textGrid[currentRow]) {
+				currentRow++
+				currentCol = 0
+				// Skip leading whitespace
+				for currentRow < len(textGrid) && currentCol < len(textGrid[currentRow]) {
+					curChar := textGrid[currentRow][currentCol]
+					if !isSpace(curChar) {
+						break
+					}
+					currentCol++
+				}
+			}
+		}
+	}
+	
+	// Now find end of current WORD (space-separated)
+	if currentRow < len(textGrid) && currentCol < len(textGrid[currentRow]) {
+		// Move to end of current WORD
+		for currentCol < len(textGrid[currentRow])-1 {
+			nextChar := textGrid[currentRow][currentCol+1]
+			if isSpace(nextChar) {
+				break
+			}
+			currentCol++
+		}
+	}
+	
+	// Ensure bounds
+	if currentRow >= len(textGrid) {
+		currentRow = len(textGrid) - 1
+		currentCol = len(textGrid[currentRow]) - 1
+	} else if currentRow >= 0 && currentCol >= len(textGrid[currentRow]) {
+		currentCol = len(textGrid[currentRow]) - 1
+	}
+	
+	return currentRow, currentCol
+}
+
+func findFirstNonBlank(row int, textGrid [][]string) int {
+	if row < 0 || row >= len(textGrid) {
+		return 0
+	}
+	
+	// Find first non-blank character in the row
+	for col := 0; col < len(textGrid[row]); col++ {
+		if !isSpace(textGrid[row][col]) {
+			return col
+		}
+	}
+	
+	// If entire row is blank, return 0
+	return 0
+}
+
+func findLastNonBlank(row int, textGrid [][]string) int {
+	if row < 0 || row >= len(textGrid) {
+		return 0
+	}
+	
+	// Find last non-blank character in the row
+	for col := len(textGrid[row]) - 1; col >= 0; col-- {
+		if !isSpace(textGrid[row][col]) {
+			return col
+		}
+	}
+	
+	// If entire row is blank, return 0
+	return 0
+}
+
+func findParagraphPrev(row, col int, textGrid [][]string) (int, int) {
+	if row < 0 || row >= len(textGrid) {
+		return row, col
+	}
+	
+	currentRow := row
+	
+	// Move up from current position
+	currentRow--
+	
+	// Skip current paragraph (non-empty lines)
+	for currentRow >= 0 {
+		// Check if line is empty (only whitespace)
+		isEmpty := true
+		for _, char := range textGrid[currentRow] {
+			if !isSpace(char) {
+				isEmpty = false
+				break
+			}
+		}
+		if isEmpty {
+			break
+		}
+		currentRow--
+	}
+	
+	// Skip empty lines
+	for currentRow >= 0 {
+		isEmpty := true
+		for _, char := range textGrid[currentRow] {
+			if !isSpace(char) {
+				isEmpty = false
+				break
+			}
+		}
+		if !isEmpty {
+			break
+		}
+		currentRow--
+	}
+	
+	// If we found a paragraph, go to its beginning
+	if currentRow >= 0 {
+		// Move to beginning of this paragraph
+		for currentRow > 0 {
+			prevRowEmpty := true
+			for _, char := range textGrid[currentRow-1] {
+				if !isSpace(char) {
+					prevRowEmpty = false
+					break
+				}
+			}
+			if prevRowEmpty {
+				break
+			}
+			currentRow--
+		}
+	} else {
+		currentRow = 0
+	}
+	
+	return currentRow, 0
+}
+
+func findParagraphNext(row, col int, textGrid [][]string) (int, int) {
+	if row < 0 || row >= len(textGrid) {
+		return row, col
+	}
+	
+	currentRow := row
+	
+	// Move down from current position
+	currentRow++
+	
+	// Skip current paragraph (non-empty lines)
+	for currentRow < len(textGrid) {
+		// Check if line is empty (only whitespace)
+		isEmpty := true
+		for _, char := range textGrid[currentRow] {
+			if !isSpace(char) {
+				isEmpty = false
+				break
+			}
+		}
+		if isEmpty {
+			break
+		}
+		currentRow++
+	}
+	
+	// Skip empty lines
+	for currentRow < len(textGrid) {
+		isEmpty := true
+		for _, char := range textGrid[currentRow] {
+			if !isSpace(char) {
+				isEmpty = false
+				break
+			}
+		}
+		if !isEmpty {
+			break
+		}
+		currentRow++
+	}
+	
+	// Ensure bounds
+	if currentRow >= len(textGrid) {
+		currentRow = len(textGrid) - 1
+	}
+	
+	return currentRow, 0
+}
+
+func findSentencePrev(row, col int, textGrid [][]string) (int, int) {
+	if row < 0 || row >= len(textGrid) {
+		return row, col
+	}
+	
+	currentRow := row
+	currentCol := col
+	
+	// Move backward to find sentence start
+	for {
+		// Move one position back
+		currentCol--
+		if currentCol < 0 {
+			if currentRow > 0 {
+				currentRow--
+				if currentRow >= 0 && currentRow < len(textGrid) {
+					currentCol = len(textGrid[currentRow]) - 1
+				}
+			} else {
+				return 0, 0 // At beginning of file
+			}
+		}
+		
+		if currentRow < 0 || currentCol < 0 {
+			return 0, 0
+		}
+		
+		// Check if current character ends a sentence
+		if currentRow < len(textGrid) && currentCol < len(textGrid[currentRow]) {
+			char := textGrid[currentRow][currentCol]
+			if char == "." || char == "!" || char == "?" {
+				// Found sentence end, move to start of next sentence
+				currentCol++
+				if currentCol >= len(textGrid[currentRow]) {
+					if currentRow+1 < len(textGrid) {
+						currentRow++
+						currentCol = 0
+					}
+				}
+				
+				// Skip whitespace to sentence start
+				for currentRow < len(textGrid) && currentCol < len(textGrid[currentRow]) {
+					if !isSpace(textGrid[currentRow][currentCol]) {
+						break
+					}
+					currentCol++
+				}
+				
+				return currentRow, currentCol
+			}
+		}
+		
+		// Prevent infinite loop
+		if currentRow == 0 && currentCol == 0 {
+			break
+		}
+	}
+	
+	return 0, 0
+}
+
+func findSentenceNext(row, col int, textGrid [][]string) (int, int) {
+	if row < 0 || row >= len(textGrid) {
+		return row, col
+	}
+	
+	currentRow := row
+	currentCol := col
+	
+	// Move forward to find sentence end
+	for currentRow < len(textGrid) {
+		for currentCol < len(textGrid[currentRow]) {
+			char := textGrid[currentRow][currentCol]
+			if char == "." || char == "!" || char == "?" {
+				// Found sentence end, move to start of next sentence
+				currentCol++
+				if currentCol >= len(textGrid[currentRow]) {
+					if currentRow+1 < len(textGrid) {
+						currentRow++
+						currentCol = 0
+					}
+				}
+				
+				// Skip whitespace to next sentence start
+				for currentRow < len(textGrid) && currentCol < len(textGrid[currentRow]) {
+					if !isSpace(textGrid[currentRow][currentCol]) {
+						break
+					}
+					currentCol++
+				}
+				
+				// Handle end of line
+				if currentRow < len(textGrid) && currentCol >= len(textGrid[currentRow]) {
+					if currentRow+1 < len(textGrid) {
+						currentRow++
+						currentCol = 0
+						// Skip leading whitespace
+						for currentRow < len(textGrid) && currentCol < len(textGrid[currentRow]) {
+							if !isSpace(textGrid[currentRow][currentCol]) {
+								break
+							}
+							currentCol++
+						}
+					}
+				}
+				
+				// Ensure bounds
+				if currentRow >= len(textGrid) {
+					currentRow = len(textGrid) - 1
+					currentCol = len(textGrid[currentRow]) - 1
+				} else if currentRow >= 0 && currentCol >= len(textGrid[currentRow]) {
+					currentCol = len(textGrid[currentRow]) - 1
+				}
+				
+				return currentRow, currentCol
+			}
+			currentCol++
+		}
+		currentRow++
+		currentCol = 0
+	}
+	
+	// If no sentence end found, go to end of file
+	if len(textGrid) > 0 {
+		return len(textGrid) - 1, len(textGrid[len(textGrid)-1]) - 1
+	}
+	return row, col
+}
+
+func findCharForward(row, col int, textGrid [][]string, targetChar string) (int, int) {
+	if row < 0 || row >= len(textGrid) {
+		return row, col
+	}
+	
+	// Search only in current row, starting from next position (vim behavior)
+	for searchCol := col + 1; searchCol < len(textGrid[row]); searchCol++ {
+		if textGrid[row][searchCol] == targetChar {
+			return row, searchCol
+		}
+	}
+	
+	// Character not found in current line, return original position
+	return row, col
+}
+
+func findCharBackward(row, col int, textGrid [][]string, targetChar string) (int, int) {
+	if row < 0 || row >= len(textGrid) {
+		return row, col
+	}
+	
+	// Search only in current row (backwards), starting from previous position (vim behavior)
+	for searchCol := col - 1; searchCol >= 0; searchCol-- {
+		if textGrid[row][searchCol] == targetChar {
+			return row, searchCol
+		}
+	}
+	
+	// Character not found in current line, return original position
+	return row, col
+}
+
+func tillCharForward(row, col int, textGrid [][]string, targetChar string) (int, int) {
+	if row < 0 || row >= len(textGrid) {
+		return row, col
+	}
+	
+	// Search only in current row, starting from next position (vim behavior)
+	for searchCol := col + 1; searchCol < len(textGrid[row]); searchCol++ {
+		if textGrid[row][searchCol] == targetChar {
+			// Return position one before the target
+			return row, searchCol - 1
+		}
+	}
+	
+	// Character not found in current line, return original position
+	return row, col
+}
+
+func tillCharBackward(row, col int, textGrid [][]string, targetChar string) (int, int) {
+	if row < 0 || row >= len(textGrid) {
+		return row, col
+	}
+	
+	// Search only in current row (backwards), starting from previous position (vim behavior)
+	for searchCol := col - 1; searchCol >= 0; searchCol-- {
+		if textGrid[row][searchCol] == targetChar {
+			// Return position one after the target
+			return row, searchCol + 1
+		}
+	}
+	
+	// Character not found in current line, return original position
+	return row, col
 }
