@@ -1,12 +1,22 @@
+let scalingEnabled = true;
+let hasInitialScale = false;
+
 export function initializeResponsiveScaling() {
-  applyScaling();
+  applyInitialScaling();
   
-  window.addEventListener('resize', applyScaling);
-  
-  const resizeObserver = new ResizeObserver(applyScaling);
-  const gameBoard = document.querySelector('.game-board');
-  if (gameBoard) {
-    resizeObserver.observe(gameBoard);
+  window.addEventListener('resize', debounce(handleResize, 150));
+}
+
+function handleResize() {
+  if (scalingEnabled) {
+    applyScaling();
+  }
+}
+
+function applyInitialScaling() {
+  if (!hasInitialScale) {
+    applyScaling();
+    hasInitialScale = true;
   }
 }
 
@@ -42,5 +52,41 @@ function applyScaling() {
 }
 
 export function updateScalingAfterMapChange() {
-  setTimeout(applyScaling, 100);
+  // Only apply scaling if we haven't scaled yet (initial game load)
+  if (!hasInitialScale) {
+    setTimeout(applyInitialScaling, 100);
+  }
+}
+
+export function disableScaling() {
+  scalingEnabled = false;
+  // Also disable the scaling transition to prevent any visual movement
+  const keyboardMap = document.querySelector('.keyboard-map');
+  if (keyboardMap) {
+    keyboardMap.style.transition = 'none';
+  }
+}
+
+export function enableScaling() {
+  scalingEnabled = true;
+  // Re-enable transition
+  const keyboardMap = document.querySelector('.keyboard-map');
+  if (keyboardMap) {
+    keyboardMap.style.transition = 'transform 0.3s ease';
+  }
+  if (scalingEnabled) {
+    applyScaling();
+  }
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 }

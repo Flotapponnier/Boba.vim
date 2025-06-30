@@ -41,5 +41,9 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeMapToggle();
   initializeTutorialMode();
   initializeChatHistory();
-  initializeResponsiveScaling();
+  
+  // Initialize responsive scaling after everything else is set up
+  setTimeout(() => {
+    initializeResponsiveScaling();
+  }, 100);
 });

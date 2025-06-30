@@ -385,16 +385,12 @@
   z-index: 50;
 }
 
-.game-board::-webkit-scrollbar {
-  display: none;
-}
 
 .keyboard-map {
   display: flex;
   flex-direction: column;
   gap: 6px;
   align-items: flex-start;
-  max-width: 100%;
   padding: 1rem 0;
   transform-origin: center center;
   transition: transform 0.3s ease;

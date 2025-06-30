@@ -139,6 +139,11 @@ export async function movePlayer(direction) {
     return;
   }
 
+  // Disable responsive scaling after first move to prevent jumps during gameplay
+  if (window.responsiveScaling && window.responsiveScaling.disableScaling) {
+    window.responsiveScaling.disableScaling();
+  }
+
   const now = Date.now();
   if (now - lastMoveTime < MOVE_COOLDOWN) {
     console.log("Move too fast, ignoring");
